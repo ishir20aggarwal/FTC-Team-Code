@@ -6,12 +6,15 @@ import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 
-public class BlueAutoFar {
+import javax.imageio.ImageIO;
+
+public class BlueAutoFarTestAlign {
+
     public static void main(String[] args) {
+
 
         MeepMeep meepMeep = new MeepMeep(800);
 

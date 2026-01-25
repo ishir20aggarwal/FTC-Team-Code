@@ -1,39 +1,24 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.PoseVelocity2d;
-import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.ftc.Actions;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 
-
-@TeleOp(name="Testing lock", group="TeleOp")
-public class Maybe extends LinearOpMode {
+@TeleOp(name="Tuning Opmode", group="TeleOp")
+public class tankukanaforloking extends LinearOpMode {
 
     private DcMotorEx topLeft, bottomLeft, topRight, bottomRight;
     private DcMotorEx motorLeft, motorRight;
     private DcMotorEx intakeLeft, intakeRight;
     private ServoImplEx intakeServo;
 
-    private ServoImplEx servoStopper;
-
-
     private volatile boolean isLaunching = false;
-
-    // ===== ALIGN TO POINT DURING LAUNCH =====
-// Set this to the point you want to FACE while launching (field coords)
-    private volatile Vector2d launchTarget = new Vector2d(65,56);  // change as needed
-
-    // Tune separately from your normal lock if you want
-    private double LAUNCH_XY_P = 0.10;      // hold position strength
-    private double LAUNCH_HEADING_P = 2.0;  // turn strength
-
 
 
     // ================= PARK LOCK =================
@@ -78,12 +63,12 @@ public class Maybe extends LinearOpMode {
 
 
     private boolean launcherOn = false;
-    private double launchPower = .52;
+    private double launchPower = 0.65;
     private boolean locking = false;
 
 
     private final double POWER_STEP = 0.02;
-    private final long ADJUST_DELAY_MS = 100;
+    private final long ADJUST_DELAY_MS = 120;
     private long lastAdjustTime = 0;
 
     private boolean intakeMotorsOn = false;
@@ -91,25 +76,9 @@ public class Maybe extends LinearOpMode {
 
     private boolean dpadLeftLast = false;
 
-    public static double DRAWING_TARGET_RADIUS = 2;
-
-    // Define 2 states, driver control or alignment control
-    enum Mode {
-        NORMAL_CONTROL,
-        ALIGN_TO_POINT
-    }
-
-    private Mode currentMode = Mode.NORMAL_CONTROL;
-
-    // Declare a PIDF Controller to regulate heading
-    // Use the same gains as SampleMecanumDrive's heading controller
-
-
-
-
 
     double xyP = 0.1;
-    double headingP = 0.1;
+    double headingP = 1;
 
     @Override
     public void runOpMode() {
@@ -159,14 +128,6 @@ public class Maybe extends LinearOpMode {
 
             }*/
             // Update pose every loop (REQUIRED for lock)
-
-            if(!isLaunching == true) {
-                servoStopper.setPosition(0.53);
-            }
-            else{
-                servoStopper.setPosition(0.1);
-
-            }
             drive.updatePoseEstimate();
 
             // Toggle lock with dpad_left (edge detect)
@@ -174,7 +135,7 @@ public class Maybe extends LinearOpMode {
             if (dpadLeft && !dpadLeftLast) {
                 if (!locking) {
                     lockPose = drive.localizer.getPose();
-                    //drive.setDrivePowers(new PoseVelocity2d(new Vector2d(61.5, -15), 180.0));
+                    drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 0), 0.0));
                 }
                 locking = !locking;
 
@@ -182,13 +143,11 @@ public class Maybe extends LinearOpMode {
             dpadLeftLast = dpadLeft;
 
             // Only ONE of these runs each loop (no fighting)
-            if (locking || isLaunching) {
-                // While launching, keep XY locked and face the target point
-                lockXYAndFacePoint(lockPose, launchTarget);
+            if (locking) {
+                lockTo(lockPose);
             } else {
                 handleDriving();
             }
-
 
 
             handleLauncherPowerAdjust();
@@ -222,43 +181,12 @@ public class Maybe extends LinearOpMode {
         intakeServo = hardwareMap.get(ServoImplEx.class, "intakeServo");
         intakeServo.setPosition(1.00);
 
-        servoStopper = hardwareMap.get(ServoImplEx.class, "servoStopper");
-
         intakeLeft  = hardwareMap.get(DcMotorEx.class, "intakeLeft");
         intakeRight = hardwareMap.get(DcMotorEx.class, "intakeRight");
 
         // REQUIRED: initialize RoadRunner drive so lock can command motors + read odometry
-        drive = new MecanumDrive(hardwareMap, new Pose2d(-50, 50, 130));
+        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
     }
-
-
-    private void lockXYAndFacePoint(Pose2d xyLockPose, Vector2d targetPoint) {
-        Pose2d curr = drive.localizer.getPose();
-
-        // Hold XY at xyLockPose
-        Vector2d diffField = new Vector2d(
-                xyLockPose.position.x - curr.position.x,
-                xyLockPose.position.y - curr.position.y
-        );
-        Vector2d xyRobot = rotate(diffField, -curr.heading.toDouble());
-
-        // Face target point
-        Vector2d toTarget = new Vector2d(
-                targetPoint.x - curr.position.x,
-                targetPoint.y - curr.position.y
-        );
-
-        double targetHeading = Math.atan2(toTarget.y, toTarget.x);
-        double headingErr = wrapAngle(targetHeading - curr.heading.toDouble());
-
-        drive.setDrivePowers(
-                new PoseVelocity2d(
-                        xyRobot.times(LAUNCH_XY_P),
-                        headingErr * LAUNCH_HEADING_P
-                )
-        );
-    }
-
 
     // Current pose helper (use anywhere)
     private Pose2d getCurrentPose() {
@@ -415,152 +343,47 @@ public class Maybe extends LinearOpMode {
         }
     }
 
-    /*private void handleLaunchSequence() {
-        boolean b = gamepad1.b;
-
-        if (b && !bPressedLast && !servoBusy) {
-            servoBusy = true;
-            // Capture pose ONCE at start so we hold position
-            lockPose = drive.localizer.getPose();
-
-            launchTarget = new Vector2d(65, 56);
-
-            // Turn on launch-align mode
-            isLaunching = true;
-            new Thread(() -> {
-                try {
-
-                    launcherOn = true;
-                    intakeRight.setPower(0.2);
-                    intakeLeft.setPower(0.2);
-                    while (opModeIsActive() && motorLeft.getVelocity() < 1640) idle();
-                    intakeServo.setPosition(0.72);
-                    sleepQuiet(500);
-                    while (opModeIsActive() && motorLeft.getVelocity() < 1640) idle();
-                    intakeServo.setPosition(0.5);
-                    sleepQuiet(500);
-                    while (opModeIsActive() && motorLeft.getVelocity() < 1640) idle();
-                    intakeServo.setPosition(0.24);
-                    sleepQuiet(250);
-                    intakeServo.setPosition(1.00);
-
-                    /*while (opModeIsActive()) {
-                        if(motorLeft.getVelocity() >= 1600){
-                            intakeServo.setPosition(0.72) ;
-                            sleepQuiet(500);
-                        }
-                        else{
-                            idle();
-                        }
-
-                        if(motorLeft.getVelocity() >= 1600){
-                            intakeServo.setPosition(0.5) ;
-                            sleepQuiet(500);
-                        }
-                        else{
-                            idle();
-                        }
-
-                        if(motorLeft.getVelocity() >= 1600){
-                            intakeServo.setPosition(0.25) ;
-                            sleepQuiet(500);
-                        }
-                        else{
-                            idle();
-                        }
-
-
-
-
-
-                    launcherOn = false;
-
-                } finally {
-                    isLaunching = false;
-                    servoBusy = false;
-
-                        // stop any residual motion from lock controller
-                    drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 0), 0.0));
-
-
-                }
-            }).start();
-        }
-
-        bPressedLast = b;
-    }*/
-
     private void handleLaunchSequence() {
         boolean b = gamepad1.b;
 
         if (b && !bPressedLast && !servoBusy) {
             servoBusy = true;
-            // Capture pose ONCE at start so we hold position
-            lockPose = drive.localizer.getPose();
 
-            launchTarget = new Vector2d(-67, 56);
-
-            // Turn on launch-align mode
-            isLaunching = true;
             new Thread(() -> {
                 try {
+                    lockPose = drive.localizer.getPose();
+                    locking = true;
+
+                    lockTo(lockPose);
                     isLaunching = true;
+
                     launcherOn = true;
                     intakeRight.setPower(0.2);
                     intakeLeft.setPower(0.2);
-                    servoStopper.setPosition(0.4);
-                    while (opModeIsActive() && motorLeft.getVelocity() < 1150) idle();
+                    sleepQuiet(1000);
                     intakeServo.setPosition(0.72);
-                    sleepQuiet(450);
-                    while (opModeIsActive() && motorLeft.getVelocity() < 1150) idle();
+                    sleepQuiet(1000);
                     intakeServo.setPosition(0.5);
-                    sleepQuiet(450);
-                    while (opModeIsActive() && motorLeft.getVelocity() < 1150) idle();
+                    sleepQuiet(1000);
                     intakeServo.setPosition(0.24);
-                    sleepQuiet(250);
+                    sleepQuiet(750);
                     intakeServo.setPosition(1.00);
-
-                    /*while (opModeIsActive()) {
-                        if(motorLeft.getVelocity() >= 1600){
-                            intakeServo.setPosition(0.72) ;
-                            sleepQuiet(500);
-                        }
-                        else{
-                            idle();
-                        }
-
-                        if(motorLeft.getVelocity() >= 1600){
-                            intakeServo.setPosition(0.5) ;
-                            sleepQuiet(500);
-                        }
-                        else{
-                            idle();
-                        }
-
-                        if(motorLeft.getVelocity() >= 1600){
-                            intakeServo.setPosition(0.25) ;
-                            sleepQuiet(500);
-                        }
-                        else{
-                            idle();
-                        }*/
+                    locking = false;
 
 
 
 
-
-                    //launcherOn = false;
-
+                    launcherOn = false;
                 } finally {
                     isLaunching = false;
                     servoBusy = false;
                 }
             }).start();
+
         }
 
         bPressedLast = b;
     }
-
 
     private void sleepQuiet(long ms) {
         try { Thread.sleep(ms); } catch (Exception ignored) {}
@@ -574,11 +397,6 @@ public class Maybe extends LinearOpMode {
         telemetry.addData("Servo Pos", intakeServo.getPosition());
         telemetry.addData("outtake", motorLeft.getPower());
         telemetry.addData("intake", intakeLeft.getPower());
-        telemetry.addData("locking", locking);
-        telemetry.addData("lockPose", lockPose);
-        //telemetry.addData("pose", drive.localizer.getPose());
-        telemetry.addData("Servo Stopper Pos",servoStopper.getPosition());
-
 
         telemetry.update();
     }
