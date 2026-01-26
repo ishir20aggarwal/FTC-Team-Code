@@ -27,7 +27,7 @@ public class Test extends LinearOpMode {
     private boolean bPressedLast = false;
 
     private boolean launcherOn = false;
-    private double launchPower = 775;
+    private double launchPower = 1500;
     private double launchError = 10;
 
     double FR = 14.11332330;
@@ -36,7 +36,7 @@ public class Test extends LinearOpMode {
     double FL = 14.05918546;
     double PL = 500;
 
-    private final double POWER_STEP = 0.02;
+    private final double POWER_STEP = 10.00;
     private final long ADJUST_DELAY_MS = 120;
     private long lastAdjustTime = 0;
 
@@ -63,11 +63,7 @@ public class Test extends LinearOpMode {
                 servoStopper.setPosition(0.1);
 
             }
-            PIDFCoefficients pidfCoefficientsL = new PIDFCoefficients(PL,0,0,FL);
-            PIDFCoefficients pidfCoefficientsR = new PIDFCoefficients(PR,0,0,FR);
 
-            motorLeft.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficientsL);
-            motorRight.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,pidfCoefficientsR);
 
             //handleLockToggle();
 
@@ -105,11 +101,22 @@ public class Test extends LinearOpMode {
         motorRight.setDirection(DcMotorEx.Direction.REVERSE);
         motorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        PIDFCoefficients pidfCoefficientsL = new PIDFCoefficients(PL,0,0,FL);
-        PIDFCoefficients pidfCoefficientsR = new PIDFCoefficients(PR,0,0,FR);
 
-        motorLeft.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,pidfCoefficientsL);
-        motorRight.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,pidfCoefficientsR);
+        PIDFCoefficients pidfCoefficientsL = new PIDFCoefficients(PL, 0, 0, FL);
+        PIDFCoefficients pidfCoefficientsR = new PIDFCoefficients(PR, 0, 0, FR);
+
+        motorLeft.setPIDFCoefficients(
+                DcMotor.RunMode.RUN_USING_ENCODER,
+                pidfCoefficientsL
+        );
+        motorRight.setPIDFCoefficients(
+                DcMotor.RunMode.RUN_USING_ENCODER,
+                pidfCoefficientsR
+        );
+
+
+        //motorLeft.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,pidfCoefficientsL);
+        //motorRight.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,pidfCoefficientsR);
 
 
         intakeServo = hardwareMap.get(ServoImplEx.class, "intakeServo");
@@ -170,16 +177,16 @@ public class Test extends LinearOpMode {
             lastAdjustTime = now;
         }
         if (gamepad1.left_bumper) {
-            launchPower = Math.max(0.0, launchPower - POWER_STEP);
+            launchPower = Math.max(1.0, launchPower - POWER_STEP);
             lastAdjustTime = now;
         }
     }
 
     private void launch() {
-        //motorLeft.setVelocity(launchPower);
-        //motorRight.setVelocity(launchPower);
-        motorLeft.setVelocityPIDFCoefficients(PL, 0, 0, FL);
-        motorRight.setVelocityPIDFCoefficients(PR, 0, 0, FR);
+        motorLeft.setVelocity(launchPower);
+        motorRight.setVelocity(launchPower);
+        //motorLeft.setVelocityPIDFCoefficients(PL, 0, 0, FL);
+        //motorRight.setVelocityPIDFCoefficients(PR, 0, 0, FR);
 
 
     }
