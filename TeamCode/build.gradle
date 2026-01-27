@@ -48,6 +48,10 @@ repositories {
     maven { url = 'https://maven.brott.dev/' }
     maven { url = 'https://repo.dairy.foundation/releases' }
     maven { url "https://jcenter.bintray.com" }
+    maven { url = "https://maven.brott.dev/" }
+    mavenCentral()
+    google()
+
 
 
 
@@ -79,8 +83,9 @@ dependencies {
     implementation "dev.frozenmilk.sinister:Sloth:0.2.4"
 
 
-    implementation 'com.acmerobotics.dashboard:dashboard:0.3.10'
-    implementation "com.noahbres:jotai:1.0.2"
+    //implementation 'com.acmerobotics.dashboard:dashboard:0.3.10'
+    implementation 'com.github.NoahBres:jotai:1.0.3'
+
 
 }
 

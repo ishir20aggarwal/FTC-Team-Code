@@ -124,8 +124,8 @@ public class LauncherTuning extends OpMode {
             PL-= stepSizes[stepIndex];
         }
 
-        intakeLeft.setPower(0.8);
-        intakeRight.setPower(0.8);
+        //intakeLeft.setPower(0.8);
+        //intakeRight.setPower(0.8);
 
 
 
