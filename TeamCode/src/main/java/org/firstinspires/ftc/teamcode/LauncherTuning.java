@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
+@Disabled
 @TeleOp
 public class LauncherTuning extends OpMode {
 
@@ -25,11 +27,23 @@ public class LauncherTuning extends OpMode {
 
 
     double curTargetVelocity = highVelocity;
+    /*og
     double FR = 14.11332330;
     double PR = 500;
 
     double FL = 14.05918546;
-    double PL = 500;
+    double PL = 500;*/
+
+    //new
+    double FR = 13.55;
+    double PR = 800;
+    double IR = 0;
+    double DR = 300;
+
+    double FL = 13.55;
+    double PL = 800;
+    double IL = 0;
+    double DL = 300;
 
     double[] stepSizes ={10.0,1.0,0.1,0.01,0.001,0.0001,0.00001,0.000001,0.0000001,0.00000001};
 
@@ -45,8 +59,8 @@ public class LauncherTuning extends OpMode {
         motorRight.setDirection(DcMotorEx.Direction.REVERSE);
         motorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        PIDFCoefficients pidfCoefficientsL = new PIDFCoefficients(PL,0,0,FL);
-        PIDFCoefficients pidfCoefficientsR = new PIDFCoefficients(PR,0,0,FR);
+        PIDFCoefficients pidfCoefficientsL = new PIDFCoefficients(PL,IL,DL,FL);
+        PIDFCoefficients pidfCoefficientsR = new PIDFCoefficients(PR,IR,DR,FR);
 
         motorLeft.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,pidfCoefficientsL);
         motorRight.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,pidfCoefficientsR);

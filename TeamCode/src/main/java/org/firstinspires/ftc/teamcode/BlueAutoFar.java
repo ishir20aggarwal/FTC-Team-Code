@@ -8,6 +8,10 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
+import org.firstinspires.ftc.teamcode.MecanumDrive;
+
+
+import java.util.Vector;
 
 
 @Autonomous(name = "Blue Auto Far", group = "Auto")
@@ -17,7 +21,8 @@ public class BlueAutoFar extends LinearOpMode {
     private DcMotorEx intakeLeft, intakeRight;
     private Servo intakeServo;
 
-    private double launchPower = 0.68;
+    private Servo servoStopper;
+    private double launchPower = .95;
 
     @Override
     public void runOpMode() {
@@ -25,6 +30,8 @@ public class BlueAutoFar extends LinearOpMode {
         motorLeft = hardwareMap.get(DcMotorEx.class, "motorLeft");
         motorRight = hardwareMap.get(DcMotorEx.class, "motorRight");
         //motorRight.setDirection(DcMotor.Direction.REVERSE);
+        //motorRight.setDirection(DcMotor.Direction.REVERSE);
+        //motorLeft.setDirection(DcMotor.Direction.REVERSE);
 
         intakeServo = hardwareMap.get(Servo.class, "intakeServo");
         intakeServo.setPosition(1.0);
@@ -32,6 +39,7 @@ public class BlueAutoFar extends LinearOpMode {
         intakeLeft = hardwareMap.get(DcMotorEx.class, "intakeLeft");
         intakeRight = hardwareMap.get(DcMotorEx.class, "intakeRight");
         //intakeRight.setDirection(DcMotor.Direction.REVERSE);
+        servoStopper = hardwareMap.get(Servo.class, "servoStopper");
 
         Pose2d beginPose = new Pose2d(61.5, -15, Math.toRadians(180));
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
@@ -39,48 +47,95 @@ public class BlueAutoFar extends LinearOpMode {
         waitForStart();
         if (!opModeIsActive()) return;
 
-        intakeLeft.setPower(0.3);
-        intakeRight.setPower(0.3);
+        intakeLeft.setPower(0.8);
+        intakeRight.setPower(0.8);
+        servoStopper.setPosition(0.53);
+
 
         if (opModeIsActive()) {
             Actions.runBlocking(
                     drive.actionBuilder(beginPose)
                             //.setReversed(true)
-                            .strafeTo(new Vector2d(56,-12))
-                            .turn(Math.toRadians(24))
+                            .strafeTo(new Vector2d(56, -12))
+                            .turn(Math.toRadians(20))
+
                             .build()
             );
         }
 
         if (opModeIsActive()) fire3Rings();
-
         if (opModeIsActive()) {
-            launchPower = 0.68;
+            //drive.defaultVelConstraint.equals(20);
             Actions.runBlocking(
                     drive.actionBuilder(drive.localizer.getPose())
-                            //.strafeTo(new Vector2d(60,-40))
-                            .turn(Math.toRadians(-119))
-                            .strafeTo(new Vector2d(35,-25))
-                            .waitSeconds(0.5d)
-                            .strafeTo(new Vector2d(35,-65))
-                            .strafeTo(new Vector2d(56,-12))
-                            .turn(Math.toRadians(123))
+//
+
+                            //darin test
+                            //.turn(-24)
+                            //.strafeTo(new Vector2d(46, -3))
+                            .setReversed(true)
+                            .strafeToLinearHeading(new Vector2d(47, -43), Math.toRadians(90))
+
+
+
                             .build()
             );
+
         }
+        if (opModeIsActive()) {
+            drive.defaultVelConstraint.equals(20);
+            Actions.runBlocking(
+                    drive.actionBuilder(drive.localizer.getPose())
+//
+
+                            //darin test
+                            //.turn(-24)
+                            //.strafeTo(new Vector2d(46, -3))
+
+
+                            .splineTo(new Vector2d(65, -62), Math.toRadians(190))
+
+                            .build()
+            );
+
+        }
+        if (opModeIsActive()) {
+            drive.defaultVelConstraint.equals(60);
+            Actions.runBlocking(
+                    drive.actionBuilder(drive.localizer.getPose())
+//
+
+                            //darin test
+                            //.turn(-24)
+                            //.strafeTo(new Vector2d(46, -3))
+
+
+                            .strafeToLinearHeading(new Vector2d(60, -5), Math.toRadians(180))
+                            .turn(Math.toRadians(20))
+
+
+                            .build()
+            );
+
+        }
+
 
         if (opModeIsActive()) fire3Rings();
 
+
         if (opModeIsActive()) {
             Actions.runBlocking(
-                    drive.actionBuilder(drive.localizer.getPose())
-                            .turn(Math.toRadians(80))
-                            .strafeTo(new Vector2d(56,-30))
-                            //.strafeTo(new Vector2d(-1, -54))
+                    drive.actionBuilder(beginPose)
+                            //.setReversed(true)
+                            .strafeTo(new Vector2d(55, -25))
+
                             .build()
+
             );
         }
 
+
+        if (opModeIsActive()) sleepQuiet(5000);
     }
 
     private void sleepQuiet(long ms) {
@@ -101,19 +156,24 @@ public class BlueAutoFar extends LinearOpMode {
         motorRight.setPower(-launchPower);
         intakeRight.setPower(0.2);
         intakeLeft.setPower(0.2);
+        servoStopper.setPosition(0.05);
         sleepQuiet(1000);
         intakeServo.setPosition(0.72);
         sleepQuiet(1000);
         intakeServo.setPosition(0.50);
+        launchPower -= 0.05;
         sleepQuiet(1000);
+
         intakeServo.setPosition(0.24);
         sleepQuiet(1500);
         intakeServo.setPosition(1.00);
         intakeRight.setPower(0.8);
         intakeLeft.setPower(0.8);
 
-        motorLeft.setPower(0);
-        motorRight.setPower(0);
+        servoStopper.setPosition(0.4);
+
+        //motorLeft.setPower(0);
+        //motorRight.setPower(0);
 
     }
 }

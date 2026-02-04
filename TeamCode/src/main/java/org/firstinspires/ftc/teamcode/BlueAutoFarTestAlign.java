@@ -17,8 +17,9 @@ import com.acmerobotics.roadrunner.Vector2d;
 
 
 
-
-@Autonomous(name = "Blue Auto Far DONT", group = "Auto")
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+@Disabled
+//@Autonomous(name = "Blue Auto Far DONT", group = "Auto")
 public class BlueAutoFarTestAlign extends LinearOpMode {
 
     private DcMotorEx motorLeft, motorRight;

@@ -36,6 +36,7 @@ public final class ManualFeedbackTuner extends LinearOpMode {
                             .lineToX(DISTANCE)
                             .lineToX(0)
                             .build());
+                telemetry.addData("heading", drive.localizer.getPose().heading);
             }
         } else if (TuningOpModes.DRIVE_CLASS.equals(TankDrive.class)) {
             TankDrive drive = new TankDrive(hardwareMap, new Pose2d(0, 0, 0));
@@ -62,4 +63,5 @@ public final class ManualFeedbackTuner extends LinearOpMode {
             throw new RuntimeException();
         }
     }
+
 }

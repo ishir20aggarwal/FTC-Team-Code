@@ -15,8 +15,10 @@ public class RedAutoFar extends LinearOpMode {
     private DcMotorEx motorLeft, motorRight;
     private DcMotorEx intakeLeft, intakeRight;
     private Servo intakeServo;
+    private Servo servoStopper;
 
-    private double launchPower = 0.69;
+
+    private double launchPower = 1.0;
 
     @Override
     public void runOpMode() {
@@ -24,9 +26,13 @@ public class RedAutoFar extends LinearOpMode {
         motorLeft = hardwareMap.get(DcMotorEx.class, "motorLeft");
         motorRight = hardwareMap.get(DcMotorEx.class, "motorRight");
         //motorRight.setDirection(DcMotor.Direction.REVERSE);
+        motorRight.setDirection(DcMotor.Direction.REVERSE);
+        motorLeft.setDirection(DcMotor.Direction.REVERSE);
 
         intakeServo = hardwareMap.get(Servo.class, "intakeServo");
         intakeServo.setPosition(1.0);
+
+        servoStopper = hardwareMap.get(Servo.class,"servoStopper");
 
         intakeLeft = hardwareMap.get(DcMotorEx.class, "intakeLeft");
         intakeRight = hardwareMap.get(DcMotorEx.class, "intakeRight");
@@ -40,28 +46,30 @@ public class RedAutoFar extends LinearOpMode {
 
         intakeLeft.setPower(0.3);
         intakeRight.setPower(0.3);
+        servoStopper.setPosition(0.53);
+
 
         if (opModeIsActive()) {
             Actions.runBlocking(
                     drive.actionBuilder(beginPose)
-                            .strafeTo(new Vector2d(56,12))
-                            .turn(Math.toRadians(-21))
+                            .strafeToLinearHeading(new Vector2d(56,12),Math.toRadians(150))
+
                             .build()
             );
         }
         if (opModeIsActive()) fire3Rings();
 
         if (opModeIsActive()) {
-            launchPower = .7;
+            launchPower = 1.0;
             Actions.runBlocking(
                     drive.actionBuilder(drive.localizer.getPose())
-                            //.strafeTo(new Vector2d(60,40))
-                            .turn(Math.toRadians(120))
-                            .strafeTo(new Vector2d(35,25))
-                            .waitSeconds(0.5)
-                            .strafeTo(new Vector2d(35,65))
-                            .strafeTo(new Vector2d(56,12))
-                            .turn(Math.toRadians(-122))
+                            .strafeToLinearHeading(new Vector2d(53,55),Math.toRadians(240))
+                            .strafeTo(new Vector2d(53, 67))
+                            .strafeTo(new Vector2d(53,55))
+                            .strafeTo(new Vector2d(62, 67))
+                            .strafeTo(new Vector2d(55,55))
+                            .strafeTo(new Vector2d(68, 67))
+                            .strafeToLinearHeading(new Vector2d(56,12),Math.toRadians(150))
                             .build()
             );
         }
@@ -71,17 +79,21 @@ public class RedAutoFar extends LinearOpMode {
         if (opModeIsActive()) {
             Actions.runBlocking(
                     drive.actionBuilder(drive.localizer.getPose())
-                            .turn(Math.toRadians(15))
+                            .waitSeconds(5)
+                            .strafeToLinearHeading(new Vector2d(60,45),Math.toRadians(-90))
+                            .strafeTo(new Vector2d(60, 64))
+                            .strafeToLinearHeading(new Vector2d(56,12),Math.toRadians(150))
 
-                            /*.strafeTo(new Vector2d(40,68))
-                            .strafeTo(new Vector2d(68,68))*/
-                            .strafeTo(new Vector2d(56,30))
-                            //.turn(Math.toRadians(-90))
-                            //.strafeTo(new Vector2d(-2,50))
-                            //make this aligning
-                            .turn(Math.toRadians(23))
-                            .strafeTo(new Vector2d(57,-55))
-                            .strafeTo(new Vector2d(57,-67))
+                            .build()
+            );
+        }
+        if (opModeIsActive()) fire3Rings();
+
+        if (opModeIsActive()) {
+            Actions.runBlocking(
+                    drive.actionBuilder(drive.localizer.getPose())
+                            .strafeToLinearHeading(new Vector2d(60,45),Math.toRadians(-90))
+                            .strafeTo(new Vector2d(60, 64))
 
                             .build()
             );
@@ -103,6 +115,7 @@ public class RedAutoFar extends LinearOpMode {
         motorRight.setPower(-launchPower);
         intakeRight.setPower(0.2);
         intakeLeft.setPower(0.2);
+        servoStopper.setPosition(0.05);
         sleepQuiet(1500);
         intakeServo.setPosition(0.72);
         sleepQuiet(1000);
@@ -113,9 +126,10 @@ public class RedAutoFar extends LinearOpMode {
         intakeServo.setPosition(1.00);
         intakeRight.setPower(0.8);
         intakeLeft.setPower(0.8);
+        servoStopper.setPosition(0.4);
 
-        motorLeft.setPower(0);
-        motorRight.setPower(0);
+        //motorLeft.setPower(0);
+        //motorRight.setPower(0);
 
     }
 }

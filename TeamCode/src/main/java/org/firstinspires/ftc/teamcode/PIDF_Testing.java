@@ -7,18 +7,27 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.hardware.lynx.LynxModule;
+
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
-
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 import java.net.IDN;
-@TeleOp(name="SAHIL USE THIS", group="TeleOp")
-public class Test extends LinearOpMode {
+@Disabled
+@TeleOp(name="PIDF Testing", group="TeleOp")
+public class PIDF_Testing extends LinearOpMode {
 
     private DcMotorEx topLeft, bottomLeft, topRight, bottomRight;
     private DcMotorEx motorLeft, motorRight;
     private DcMotorEx intakeLeft, intakeRight;
+
+    public static PIDFCoefficients MOTOR_VELO_PIDL = new PIDFCoefficients(300, 0, 120, 16.5);
+    public static PIDFCoefficients MOTOR_VELO_PIDR = new PIDFCoefficients(300, 0, 120, 16.5);
+
+
     private ServoImplEx intakeServo;
     private ServoImplEx servoStopper;
 
@@ -28,14 +37,9 @@ public class Test extends LinearOpMode {
     private boolean servoBusy = false;
     private boolean bPressedLast = false;
 
-    private boolean isEndGame = false;
-    private double endGameStart;
-
     private boolean launcherOn = false;
-    private double launchPower = 1;
-    private double launchError = 0.05;
-
-    private double runTime = getRuntime();
+    private double launchPower = 1450;
+    private double launchError = 50;
 
     //new
     double FR = 13.55;
@@ -48,7 +52,7 @@ public class Test extends LinearOpMode {
     double IL = 0;
     double DL = 300;
 
-    private final double POWER_STEP = 0.05;
+    private final double POWER_STEP = 10.00;
     private final long ADJUST_DELAY_MS = 120;
     private long lastAdjustTime = 0;
 
@@ -56,11 +60,50 @@ public class Test extends LinearOpMode {
     private boolean xPressedLast = false;
 
     @Override
-    public void runOpMode() {
+    public void runOpMode()  throws InterruptedException{
         initHardware();
         telemetry.addData("Status", "Ready");
         telemetry.update();
         waitForStart();
+
+        for (LynxModule module : hardwareMap.getAll(LynxModule.class)) {
+            module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
+
+        // RUE limits max motor speed to 85% by default
+        // Raise that limit to 100%
+        MotorConfigurationType motorConfigurationTypeL = motorLeft.getMotorType().clone();
+        motorConfigurationTypeL.setAchieveableMaxRPMFraction(1.0);
+        motorLeft.setMotorType(motorConfigurationTypeL);
+
+        // Turn on RUN_USING_ENCODER
+        motorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        // Set PIDF Coefficients with voltage compensated feedforward value
+        motorLeft.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(
+                MOTOR_VELO_PIDL.p, MOTOR_VELO_PIDL.i, MOTOR_VELO_PIDL.d,
+                MOTOR_VELO_PIDL.f * 12 / hardwareMap.voltageSensor.iterator().next().getVoltage()
+
+
+        ));
+
+        // RUE limits max motor speed to 85% by default
+        // Raise that limit to 100%
+        MotorConfigurationType motorConfigurationTypeR = motorRight.getMotorType().clone();
+        motorConfigurationTypeR.setAchieveableMaxRPMFraction(1.0);
+        motorRight.setMotorType(motorConfigurationTypeR);
+
+        // Turn on RUN_USING_ENCODER
+        motorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        // Set PIDF Coefficients with voltage compensated feedforward value
+        motorRight.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(
+                MOTOR_VELO_PIDR.p, MOTOR_VELO_PIDR.i, MOTOR_VELO_PIDR.d,
+                MOTOR_VELO_PIDR.f * 12 / hardwareMap.voltageSensor.iterator().next().getVoltage()
+
+
+        ));
+
 
 
         while (opModeIsActive()) {
@@ -76,12 +119,6 @@ public class Test extends LinearOpMode {
 
             }
 
-            if (endGameStart >= getRuntime() && !isEndGame){
-                //gamepad1.runRumbleEffect();
-                gamepad1.rumbleBlips(5);
-                isEndGame = true;
-            }
-
 
             //handleLockToggle();
 
@@ -90,11 +127,6 @@ public class Test extends LinearOpMode {
             } else {
 
             }*/
-            if(gamepad1.dpad_right){
-                gamepad1.rumbleBlips(3);
-                gamepad1.rumble(5000);
-
-            }
             handleDriving();
             handleLauncherPowerAdjust();
             handleLaunchSequence();
@@ -105,7 +137,6 @@ public class Test extends LinearOpMode {
     }
 
     private void initHardware() {
-        endGameStart = getRuntime() + 90;
         topLeft    = hardwareMap.get(DcMotorEx.class, "leftFront");
         bottomLeft = hardwareMap.get(DcMotorEx.class, "leftBack");
         topRight   = hardwareMap.get(DcMotorEx.class, "rightFront");
@@ -119,14 +150,14 @@ public class Test extends LinearOpMode {
         topRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         bottomRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        motorLeft  = hardwareMap.get(DcMotorEx.class, "motorRight");
-        motorRight = hardwareMap.get(DcMotorEx.class, "motorLeft");
-        motorLeft.setDirection(DcMotorEx.Direction.REVERSE);
+        motorLeft  = hardwareMap.get(DcMotorEx.class, "motorLeft");
+        motorRight = hardwareMap.get(DcMotorEx.class, "motorRight");
+        //motorLeft.setDirection(DcMotorEx.Direction.REVERSE);
         motorRight.setDirection(DcMotorEx.Direction.REVERSE);
         motorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        /*PIDFCoefficients pidfCoefficientsL = new PIDFCoefficients(PL, IL, DL, FL);
+        PIDFCoefficients pidfCoefficientsL = new PIDFCoefficients(PL, IL, DL, FL);
         PIDFCoefficients pidfCoefficientsR = new PIDFCoefficients(PR, IR, DR, FR);
 
         motorLeft.setPIDFCoefficients(
@@ -139,8 +170,8 @@ public class Test extends LinearOpMode {
         );
 
 
-        motorLeft.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,pidfCoefficientsL);
-        motorRight.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,pidfCoefficientsR);*/
+        //motorLeft.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,pidfCoefficientsL);
+        //motorRight.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,pidfCoefficientsR);
 
 
         intakeServo = hardwareMap.get(ServoImplEx.class, "intakeServo");
@@ -192,7 +223,7 @@ public class Test extends LinearOpMode {
         bottomRight.setPower(br);
     }
 
-    /*private void handleLauncherPowerAdjust() {
+    private void handleLauncherPowerAdjust() {
         long now = System.currentTimeMillis();
         if (now - lastAdjustTime < ADJUST_DELAY_MS) return;
 
@@ -207,39 +238,17 @@ public class Test extends LinearOpMode {
     }
 
     private void launch() {
-        motorLeft.setPower(launchPower);
-        motorRight.setPower(launchPower);
+        motorLeft.setVelocity(launchPower);
+        motorRight.setVelocity(launchPower);
         //motorLeft.setVelocityPIDFCoefficients(PL, 0, 0, FL);
         //motorRight.setVelocityPIDFCoefficients(PR, 0, 0, FR);
 
 
-    }*/
-    private void handleLauncherPowerAdjust() {
-        long now = System.currentTimeMillis();
-        if (now - lastAdjustTime < ADJUST_DELAY_MS) return;
-
-        if (gamepad1.right_bumper) {
-            //launchPower = Math.min(1.0, launchPower + POWER_STEP);
-            launchPower+=POWER_STEP;
-            lastAdjustTime = now;
-        }
-        if (gamepad1.left_bumper) {
-            //launchPower = Math.max(0.0, launchPower - POWER_STEP);
-            launchPower-=POWER_STEP;
-            lastAdjustTime = now;
-        }
-    }
-
-    private void launch() {
-        //double p = launcherOn ? -launchPower : 0;
-        motorLeft.setPower(launchPower);
-        motorRight.setPower(launchPower);
     }
 
 
 
-
-        private void handleIntakeMotorsToggle() {
+    private void handleIntakeMotorsToggle() {
         if (gamepad1.x && !xPressedLast) {
             intakeMotorsOn = !intakeMotorsOn;
         }
@@ -250,7 +259,7 @@ public class Test extends LinearOpMode {
         }
     }
 
-    /*private void handleLaunchSequence() {
+    private void handleLaunchSequence() {
         boolean b = gamepad1.b;
 
         if (b && !bPressedLast && !servoBusy) {
@@ -283,51 +292,6 @@ public class Test extends LinearOpMode {
         }
 
         bPressedLast = b;
-    }*/
-
-    private void handleLaunchSequence() {
-        boolean b = gamepad1.b;
-
-        if (b && !bPressedLast && !servoBusy) {
-            servoBusy = true;
-
-            new Thread(() -> {
-                try {
-                    intakeRight.setPower(0.2);
-                    intakeLeft.setPower(0.2);
-                    servoStopper.setPosition(0.4);
-                    launcherOn = true;
-                    isLaunching = true;
-                    intakeServo.setPosition(0.72);
-                    sleepQuiet(500);
-                    //launchPower += 0.03;
-                    intakeServo.setPosition(0.50);
-                    //launchPower += 0.03;
-                    sleepQuiet(500);
-                    intakeServo.setPosition(0.24);
-                    sleepQuiet(600);
-                    intakeServo.setPosition(1.00);
-
-                    //launchPower -= 0.06;
-
-//                    sleepQuiet(1000);
-//                    intakeServo.setPosition(0.72);
-//                    sleepQuiet(1000);
-//                    intakeServo.setPosition(0.5);
-//                    sleepQuiet(1000);
-//                    intakeServo.setPosition(0.24);
-//                    sleepQuiet(200);
-//                    intakeServo.setPosition(1.00);
-
-                    launcherOn = false;
-                    isLaunching = false;
-                } finally {
-                    servoBusy = false;
-                }
-            }).start();
-        }
-
-        bPressedLast = b;
     }
 
     private void sleepQuiet(long ms) {
@@ -352,12 +316,10 @@ public class Test extends LinearOpMode {
         telemetry.addData("|", "|");
         telemetry.addData("|", "|");
         telemetry.addData("|", "|");
-        telemetry.addData("Target RPM", -launchPower / 28 * 60);
+        telemetry.addData("Target RPM", launchPower / 28 * 60);
         telemetry.addData("Left RPM", motorLeft.getVelocity());
         telemetry.addData("Right RPM", motorRight.getVelocity());
         telemetry.addData("L-R Diff", motorLeft.getVelocity() - motorRight.getVelocity());
-        telemetry.addData("Run-Time", getRuntime());
-        telemetry.addData("Current Pose",drive.localizer.getPose());
         //telemetry.addData("Power");
 
         telemetry.update();

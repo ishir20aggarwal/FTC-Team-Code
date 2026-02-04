@@ -23,35 +23,40 @@ public class RedAutoFar {
         // Flipped start pose: same x, y reflected, heading negated
         Pose2d start = new Pose2d(
                 61.5,
-                10,
+                15,
                 Math.toRadians(180)
         );
 
         myBot.runAction(
                 myBot.getDrive().actionBuilder(start)
-                        .strafeTo(new Vector2d(56,12))
-                        .turn(Math.toRadians(-18))
-//                        .strafeTo(new Vector2d(60,40))
-//                        .turn(Math.toRadians(120))
-//                        .strafeTo(new Vector2d(33,25))
-//                        .waitSeconds(0.5)
-//                        .strafeTo(new Vector2d(33,65))
-//                        .strafeTo(new Vector2d(56,12))
-//                        .turn(Math.toRadians(-120))
-//                        .turn(Math.toRadians(15))
-                        /*.strafeTo(new Vector2d(40,68))
-                        .strafeTo(new Vector2d(68,68))*/
-//                        .turn(Math.toRadians(-90))
-//                        .turn(Math.toRadians(180))
-                        //.strafeTo(new Vector2d(-2,50))
-                        .strafeToLinearHeading(new Vector2d(53,55),Math.toRadians(240))
-                        .strafeTo(new Vector2d(53, 67))
-                        .strafeTo(new Vector2d(53,55))
+                        .strafeToLinearHeading(new Vector2d(56,12),Math.toRadians(150))
+                        //shoot
+                        .strafeToLinearHeading(new Vector2d(55,45),Math.toRadians(-90))
+                        .strafeTo(new Vector2d(55, 55))
+                        .strafeTo(new Vector2d(55,60))
                         .strafeTo(new Vector2d(62, 67))
                         .strafeTo(new Vector2d(55,55))
                         .strafeTo(new Vector2d(68, 67))
-                        .strafeTo(new Vector2d(56,12))
-                        .turn(Math.toRadians(-100))
+                        .strafeToLinearHeading(new Vector2d(56,12),Math.toRadians(150))
+                        //shoot
+                        .waitSeconds(5)
+                        .strafeToLinearHeading(new Vector2d(60,45),Math.toRadians(-90))
+                        .strafeTo(new Vector2d(60, 64))
+                        //.strafeTo(new Vector2d(60,45))
+                        //.strafeTo(new Vector2d(60, 64))
+                        .strafeToLinearHeading(new Vector2d(56,12),Math.toRadians(150))
+                        //shoot
+                        .strafeToLinearHeading(new Vector2d(60,45),Math.toRadians(-90))
+                        .strafeTo(new Vector2d(60, 64))
+                        //.strafeTo(new Vector2d(60,45))
+                        //.strafeTo(new Vector2d(60, 64))
+
+                        .strafeToLinearHeading(new Vector2d(56,12),Math.toRadians(150))
+                        //shoot
+
+                        .strafeToLinearHeading(new Vector2d(60,45),Math.toRadians(-90))
+                        .strafeTo(new Vector2d(60, 64))
+
                         .build()
         );
 

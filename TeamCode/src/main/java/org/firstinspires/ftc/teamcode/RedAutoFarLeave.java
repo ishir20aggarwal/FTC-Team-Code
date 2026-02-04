@@ -8,8 +8,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
-
-@Autonomous(name = "Red Auto Far Leave", group = "Auto")
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+@Disabled
+//@Autonomous(name = "Red Auto Far Leave", group = "Auto")
 public class RedAutoFarLeave extends LinearOpMode {
 
     private DcMotorEx motorLeft, motorRight;
