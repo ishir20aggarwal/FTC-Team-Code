@@ -72,7 +72,7 @@ public class RedAutoClose extends LinearOpMode {
 
 
                             .setReversed(true)
-                            .lineToX(-11)
+                            .lineToX(-20)
                             .build()
             );
         }
@@ -124,7 +124,7 @@ public class RedAutoClose extends LinearOpMode {
                             .setReversed(true)
                             .strafeTo(new Vector2d(27, 80))
                             .setReversed(false)
-                            .strafeToLinearHeading(new Vector2d(-30, 35), Math.toRadians(120))
+                            .strafeToLinearHeading(new Vector2d(-30, 45), Math.toRadians(125))
 
                             .build()
             );

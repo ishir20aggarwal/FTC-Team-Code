@@ -27,7 +27,7 @@ public class RedAutoClose {
         myBot.runAction(
                 myBot.getDrive().actionBuilder(start)
                         .setReversed(true)
-                        .lineToX(-11)
+                        .lineToX(-15)
                         //shoot
                         .setReversed(true)
                         .strafeToLinearHeading(new Vector2d(13, 26),Math.toRadians(-90))

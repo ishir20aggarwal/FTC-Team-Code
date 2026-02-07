@@ -84,21 +84,22 @@ public class MainBlue extends LinearOpMode {
             dpadLeftLast = dpadLeft;
 
             // MAIN CONTROL: only one thing commands drive each loop
-            if (isLaunching) {
-                // Hold the ORIGINAL lockPose and face launchTarget
-                //lockXYAndFacePoint(lockPose, launchTarget);
-            } else if (locking) {
-                // Hold lockPose (return if pushed)
-                lockTo(lockPose);
-            } else {
-                handleDriving();
-            }
+//            if (isLaunching) {
+//                // Hold the ORIGINAL lockPose and face launchTarget
+//                //lockXYAndFacePoint(lockPose, launchTarget);
+//            } else if (locking) {
+//                // Hold lockPose (return if pushed)
+////                lockTo(lockPose);
+//            } else {
+//                handleDriving();
+//            }
 
-            if(gamepad1.dpad_down && gamepad1.a){
-                drive.localizer.setPose(new Pose2d(61,60,Math.toRadians(90)));
+            //if(gamepad1.dpad_down && gamepad1.a){
+//                drive.localizer.setPose(new Pose2d(61,60,Math.toRadians(90)));
 
-            }
+            //}
 
+            handleDriving();
             handleLauncherPowerAdjust();
             handleLaunchSequence();
             handleIntakeMotorsToggle();
@@ -106,6 +107,7 @@ public class MainBlue extends LinearOpMode {
             HumanPlayer();
             manualOverride();
             farShooting();
+            splice();
 
             sendTelemetry();
         }
@@ -227,8 +229,8 @@ public class MainBlue extends LinearOpMode {
         xPressedLast = gamepad1.x;
 
         if (!servoBusy) {
-            intakeLeft.setPower(intakeMotorsOn ? 0.8 : 0.0);
-            intakeRight.setPower(intakeMotorsOn ? 0.8 : 0.0);
+            intakeLeft.setPower(intakeMotorsOn ? 1.0 : 0.0);
+            intakeRight.setPower(intakeMotorsOn ? 1.0 : 0.0);
         }
     }
 
@@ -240,7 +242,7 @@ public class MainBlue extends LinearOpMode {
             servoBusy = true;
 
             // CAPTURE THE POSE ONCE HERE (this is what you will return to)
-            lockPose = drive.localizer.getPose();
+//            lockPose = drive.localizer.getPose();
 
             // Choose launch target once
             //launchTarget = new Vector2d(-180, -40);
@@ -255,14 +257,14 @@ public class MainBlue extends LinearOpMode {
 
                     servoStopper.setPosition(servoPosUp);
                     launchPower -= 0.07;
-                    sleepQuiet(200);
+                    //sleepQuiet(200);
 
                     intakeServo.setPosition(0.72);
                     launchPower += 0.07;
-                    sleepQuiet(400);
+                    sleepQuiet(500);
 
                     intakeServo.setPosition(0.50);
-                    sleepQuiet(400);
+                    sleepQuiet(500);
 
                     intakeServo.setPosition(0.24);
                     sleepQuiet(600);
@@ -340,6 +342,16 @@ public class MainBlue extends LinearOpMode {
 
 
 
+    }
+
+
+    private void splice(){
+        if(gamepad2.dpad_up){
+            launchPower = Math.min(launchPower*2,-1);
+        } else if(gamepad2.dpad_down){
+            launchPower = launchPower/2;
+
+        }
     }
 
     private void farShooting() {

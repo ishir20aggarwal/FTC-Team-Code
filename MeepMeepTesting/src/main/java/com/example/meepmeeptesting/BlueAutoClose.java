@@ -110,7 +110,7 @@ public class BlueAutoClose {
         myBot.runAction(
                 myBot.getDrive().actionBuilder(start)
                         .setReversed(true)
-                            .lineToX(-11)
+                            .lineToX(-20)
                              .setReversed(true)
                             .strafeToLinearHeading(new Vector2d(10, -20), Math.toRadians(90))
                             .strafeTo(new Vector2d(10, -55))
