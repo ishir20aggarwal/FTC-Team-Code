@@ -3,11 +3,13 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
+@Disabled
 @TeleOp(name="Main Red", group="TeleOp")
 public class MainRed extends LinearOpMode {
 
@@ -31,14 +33,17 @@ public class MainRed extends LinearOpMode {
 
     // ================= LAUNCH ALIGN =================
     private volatile boolean isLaunching = false;
-    private volatile Vector2d launchTarget = new Vector2d(-89, 40);
+    private volatile Vector2d launchTarget = new Vector2d(-58, 58);
 
-    private double LAUNCH_XY_P = 0.10;
-    private double LAUNCH_HEADING_P = 0.5;
+    private double LAUNCH_XY_P = 0.40;
+    private double LAUNCH_HEADING_P = 0.4;
 
     // ================= LAUNCHER / INTAKE =================
-    private boolean launcherOn = false;
-    private double launchPower = 0.77;
+    private double launchPower = -0.77;
+
+    private boolean aLast = false;
+    private boolean stopperOpen = false;  // false = 0.53, true = 0.05
+
 
     private boolean servoBusy = false;
     private boolean bPressedLast = false;
@@ -57,7 +62,6 @@ public class MainRed extends LinearOpMode {
         telemetry.addData("Status", "Ready");
         telemetry.update();
         waitForStart();
-        launcherOn = true;
 
         while (opModeIsActive()) {
             drive.updatePoseEstimate();
@@ -86,6 +90,11 @@ public class MainRed extends LinearOpMode {
                 lockTo(lockPose);
             } else {
                 handleDriving();
+            }
+
+            if(gamepad1.dpad_down && gamepad1.a){
+                drive.localizer.setPose(new Pose2d(61,-60,Math.toRadians(-90)));
+
             }
 
             handleLauncherPowerAdjust();
@@ -129,7 +138,7 @@ public class MainRed extends LinearOpMode {
         x *= 0.60;
 
         // If strafing, optionally reduce rotation to keep it clean
-        if (Math.abs(x) > 0.05) r = 0;
+        //if (Math.abs(x) > 0.05) //r = 0;
 
         drive.setDrivePowers(new PoseVelocity2d(new Vector2d(y, x), r));
     }
@@ -192,25 +201,18 @@ public class MainRed extends LinearOpMode {
         if (now - lastAdjustTime < ADJUST_DELAY_MS) return;
 
         if (gamepad1.right_bumper) {
-            launchPower = Math.min(1.0, launchPower + POWER_STEP);
+            launchPower -= POWER_STEP;
             lastAdjustTime = now;
         }
         if (gamepad1.left_bumper) {
-            launchPower = Math.max(0.0, launchPower - POWER_STEP);
+            launchPower += POWER_STEP;
             lastAdjustTime = now;
-        }
-
-        // Preset example
-        if (gamepad1.dpad_down) {
-            motorLeft.setPower(0.72);
-            motorRight.setPower(0.64);
         }
     }
 
     private void updateLauncherMotors() {
-        double p = launcherOn ? -launchPower : 0;
-        motorLeft.setPower(p);
-        motorRight.setPower(p);
+        motorLeft.setPower(launchPower);
+        motorRight.setPower(launchPower);
     }
 
     // ===================== INTAKE =====================
@@ -244,16 +246,15 @@ public class MainRed extends LinearOpMode {
 
             new Thread(() -> {
                 try {
-                    launcherOn = true;
-                    sleepQuiet(1000);
-
-                    // optional: feed a bit during launch
                     intakeRight.setPower(0.2);
                     intakeLeft.setPower(0.2);
 
                     servoStopper.setPosition(0.05);
+                    launchPower -= 0.07;
+                    sleepQuiet(200);
 
                     intakeServo.setPosition(0.72);
+                    launchPower += 0.07;
                     sleepQuiet(500);
 
                     intakeServo.setPosition(0.50);
@@ -278,27 +279,23 @@ public class MainRed extends LinearOpMode {
     private static double wrapAngle(double a) {
         return Math.atan2(Math.sin(a), Math.cos(a));
     }
-    private void HumanPlayer(){
-        boolean a = gamepad1.a;
-        if(gamepad1.aWasPressed() == true && !(launchPower % 2 == 1)) {
+    private void HumanPlayer() {
+        boolean aNow = gamepad1.a;
+
+        // Rising-edge detect (press once)
+        if (aNow && !aLast && !gamepad1.dpad_down) {
+
+            // 1) flip launcher direction
             launchPower = -launchPower;
+
+            // 2) toggle stopper position
+            stopperOpen = !stopperOpen;
+            servoStopper.setPosition(stopperOpen ? 0.05 : 0.53);
         }
 
-        if(gamepad1.aWasPressed() == true && servoStopper.getPosition() == .05 ) {
-            //isLaunching = false;
-            servoStopper.setPosition(0.53);
-        }
-        if(gamepad1.aWasPressed() == true && !(launchPower % 2 == -1)) {
-            launchPower = -launchPower;
-        }
-
-        if(gamepad1.aWasPressed() == true && servoStopper.getPosition() == 0.53 ) {
-            sleepQuiet(100);
-            //isLaunching = true;
-            servoStopper.setPosition(0.05);
-        }
-
+        aLast = aNow;
     }
+
 
     private void manualOverride(){
 
@@ -313,8 +310,6 @@ public class MainRed extends LinearOpMode {
                 try {
                     lockPose = drive.localizer.getPose();
                     locking = true;
-                    //isLaunching = true;
-                    launcherOn = true;
                     intakeRight.setPower(0.2);
                     intakeLeft.setPower(0.2);
                     servoStopper.setPosition(0.05);
@@ -353,7 +348,6 @@ public class MainRed extends LinearOpMode {
             intakeRight.setPower(0.2);
             intakeLeft.setPower(0.2);
             servoStopper.setPosition(0.05);
-            launcherOn = true;
             isLaunching = true;
             intakeServo.setPosition(0.72);
             sleepQuiet(750);
@@ -365,13 +359,8 @@ public class MainRed extends LinearOpMode {
             sleepQuiet(600);
             intakeServo.setPosition(1.00);
             locking = false;
-
-
-
+            //isLaunching = false;
         }
-
-
-
     }
 
 
@@ -388,7 +377,6 @@ public class MainRed extends LinearOpMode {
     }
 
     private void sendTelemetry() {
-        telemetry.addData("LauncherOn", launcherOn);
         telemetry.addData("LaunchPower", launchPower);
         telemetry.addData("ServoBusy", servoBusy);
         telemetry.addData("IntakeServoPos", intakeServo.getPosition());

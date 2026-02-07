@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
-@TeleOp(name="Main Blue", group="TeleOp")
+@TeleOp(name="SAHIL USE THIS", group="TeleOp")
 public class MainBlue extends LinearOpMode {
 
     private DcMotorEx motorLeft, motorRight;
@@ -26,18 +26,26 @@ public class MainBlue extends LinearOpMode {
     private Pose2d lockPose = new Pose2d(0, 0, 0);
 
     // Gains for lockTo
-    private double xyP = .2;
-    private double headingP = .2;
+    private double xyP = .5;
+    private double headingP = .5;
 
     // ================= LAUNCH ALIGN =================
     private volatile boolean isLaunching = false;
-    private volatile Vector2d launchTarget = new Vector2d(-58, -45);
+    private volatile Vector2d launchTarget = new Vector2d(-56, -58);
 
-    private double LAUNCH_XY_P = 0.10;
+    private double LAUNCH_XY_P = 0.50;
     private double LAUNCH_HEADING_P = 0.5;
+
+    private double servoPosUp = 0.12;
+
+    private double servoPosDown = 0.53;
 
     // ================= LAUNCHER / INTAKE =================
     private double launchPower = -0.77;
+
+    private boolean aLast = false;
+    private boolean stopperOpen = false;  // false = 0.53, true = 0.05
+
 
     private boolean servoBusy = false;
     private boolean bPressedLast = false;
@@ -78,7 +86,7 @@ public class MainBlue extends LinearOpMode {
             // MAIN CONTROL: only one thing commands drive each loop
             if (isLaunching) {
                 // Hold the ORIGINAL lockPose and face launchTarget
-                lockXYAndFacePoint(lockPose, launchTarget);
+                //lockXYAndFacePoint(lockPose, launchTarget);
             } else if (locking) {
                 // Hold lockPose (return if pushed)
                 lockTo(lockPose);
@@ -87,7 +95,7 @@ public class MainBlue extends LinearOpMode {
             }
 
             if(gamepad1.dpad_down && gamepad1.a){
-                drive.localizer.setPose(new Pose2d(0,0,Math.toRadians(180)));
+                drive.localizer.setPose(new Pose2d(61,60,Math.toRadians(90)));
 
             }
 
@@ -114,7 +122,7 @@ public class MainBlue extends LinearOpMode {
         intakeServo.setPosition(1.00);
 
         servoStopper = hardwareMap.get(ServoImplEx.class, "servoStopper");
-        servoStopper.setPosition(0.53);
+        servoStopper.setPosition(servoPosDown);
 
         // RoadRunner drive init
         drive = new MecanumDrive(hardwareMap, PoseStorage.lastPose);
@@ -130,6 +138,8 @@ public class MainBlue extends LinearOpMode {
 
         // Optional: reduce strafe
         x *= 0.60;
+        //y *= 0.60;
+        //r *= 0.60;
 
         // If strafing, optionally reduce rotation to keep it clean
         //if (Math.abs(x) > 0.05) //r = 0;
@@ -164,30 +174,30 @@ public class MainBlue extends LinearOpMode {
     }
 
     // Hold XY at lockPose and face a point (for launching)
-    private void lockXYAndFacePoint(Pose2d xyLockPose, Vector2d targetPoint) {
-        Pose2d curr = drive.localizer.getPose();
-
-        Vector2d diffField = new Vector2d(
-                xyLockPose.position.x - curr.position.x,
-                xyLockPose.position.y - curr.position.y
-        );
-        Vector2d xyRobot = rotate(diffField, -curr.heading.toDouble());
-
-        Vector2d toTarget = new Vector2d(
-                targetPoint.x - curr.position.x,
-                targetPoint.y - curr.position.y
-        );
-
-        double targetHeading = Math.atan2(toTarget.y, toTarget.x);
-        double headingErr = wrapAngle(targetHeading - curr.heading.toDouble());
-
-        drive.setDrivePowers(
-                new PoseVelocity2d(
-                        xyRobot.times(LAUNCH_XY_P),
-                        headingErr * LAUNCH_HEADING_P
-                )
-        );
-    }
+//    private void lockXYAndFacePoint(Pose2d xyLockPose, Vector2d targetPoint) {
+//        Pose2d curr = drive.localizer.getPose();
+//
+//        Vector2d diffField = new Vector2d(
+//                xyLockPose.position.x - curr.position.x,
+//                xyLockPose.position.y - curr.position.y
+//        );
+//        Vector2d xyRobot = rotate(diffField, -curr.heading.toDouble());
+//
+//        Vector2d toTarget = new Vector2d(
+//                targetPoint.x - curr.position.x,
+//                targetPoint.y - curr.position.y
+//        );
+//
+//        double targetHeading = Math.atan2(toTarget.y, toTarget.x);
+//        double headingErr = wrapAngle(targetHeading - curr.heading.toDouble());
+//
+//        drive.setDrivePowers(
+//                new PoseVelocity2d(
+//                        xyRobot.times(LAUNCH_XY_P),
+//                        headingErr * LAUNCH_HEADING_P
+//                )
+//        );
+//    }
 
     // ===================== LAUNCHER =====================
     private void handleLauncherPowerAdjust() {
@@ -195,11 +205,11 @@ public class MainBlue extends LinearOpMode {
         if (now - lastAdjustTime < ADJUST_DELAY_MS) return;
 
         if (gamepad1.right_bumper) {
-            launchPower = Math.min(1.0, launchPower + POWER_STEP);
+            launchPower -= POWER_STEP;
             lastAdjustTime = now;
         }
         if (gamepad1.left_bumper) {
-            launchPower = Math.max(0.0, launchPower - POWER_STEP);
+            launchPower += POWER_STEP;
             lastAdjustTime = now;
         }
     }
@@ -243,19 +253,22 @@ public class MainBlue extends LinearOpMode {
                     intakeRight.setPower(0.2);
                     intakeLeft.setPower(0.2);
 
-                    servoStopper.setPosition(0.05);
+                    servoStopper.setPosition(servoPosUp);
+                    launchPower -= 0.07;
+                    sleepQuiet(200);
 
                     intakeServo.setPosition(0.72);
-                    sleepQuiet(500);
+                    launchPower += 0.07;
+                    sleepQuiet(400);
 
                     intakeServo.setPosition(0.50);
-                    sleepQuiet(500);
+                    sleepQuiet(400);
 
                     intakeServo.setPosition(0.24);
                     sleepQuiet(600);
 
                     intakeServo.setPosition(1.00);
-                    servoStopper.setPosition(0.53);
+                    servoStopper.setPosition(servoPosDown);
                 } finally {
                     isLaunching = false;
                     servoBusy = false;
@@ -270,32 +283,23 @@ public class MainBlue extends LinearOpMode {
     private static double wrapAngle(double a) {
         return Math.atan2(Math.sin(a), Math.cos(a));
     }
-    private void HumanPlayer(){
-        boolean a = gamepad1.a;
+    private void HumanPlayer() {
+        boolean aNow = gamepad1.a;
 
-        if (gamepad1.aWasPressed() && !gamepad1.dpad_down) {
+        // Rising-edge detect (press once)
+        if (aNow && !aLast && !gamepad1.dpad_down) {
+
+            // 1) flip launcher direction
             launchPower = -launchPower;
-            if (servoStopper.getPosition() == 0.05) servoStopper.setPosition(0.53);
-            else servoStopper.setPosition(0.05);
+
+            // 2) toggle stopper position
+            stopperOpen = !stopperOpen;
+            servoStopper.setPosition(stopperOpen ? servoPosUp : servoPosDown);
         }
 
-//        if(gamepad1.aWasPressed() == true && !(launchPower % 2 == 1)&& !gamepad1.dpad_down) {
-//            launchPower = -launchPower;
-//        }
-//
-//        if(gamepad1.aWasPressed() == true && servoStopper.getPosition() == .05 && !gamepad1.dpad_down) {
-//            //isLaunching = false;
-//            servoStopper.setPosition(0.53);
-//        }
-//        if(gamepad1.aWasPressed() == true && !(launchPower % 2 == -1)&& !gamepad1.dpad_down) {
-//            launchPower = -launchPower;
-//        }
-//
-//        if(gamepad1.aWasPressed() == true && servoStopper.getPosition() == 0.53 && !gamepad1.dpad_down) {
-//            servoStopper.setPosition(0.05);
-//        }
-
+        aLast = aNow;
     }
+
 
     private void manualOverride(){
 
@@ -312,7 +316,7 @@ public class MainBlue extends LinearOpMode {
                     locking = true;
                     intakeRight.setPower(0.2);
                     intakeLeft.setPower(0.2);
-                    servoStopper.setPosition(0.05);
+                    servoStopper.setPosition(servoPosUp);
 
                     int shoots = 0;
                     double[] shooting = {0.72, 0.50, 0.24};
@@ -347,7 +351,7 @@ public class MainBlue extends LinearOpMode {
             launchPower = 1;
             intakeRight.setPower(0.2);
             intakeLeft.setPower(0.2);
-            servoStopper.setPosition(0.05);
+            servoStopper.setPosition(servoPosUp);
             isLaunching = true;
             intakeServo.setPosition(0.72);
             sleepQuiet(750);
@@ -362,6 +366,8 @@ public class MainBlue extends LinearOpMode {
             //isLaunching = false;
         }
     }
+
+
 
 
     private static Vector2d rotate(Vector2d v, double angle) {

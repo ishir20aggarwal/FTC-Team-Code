@@ -13,6 +13,7 @@ import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 
 import java.net.IDN;
+@Disabled
 @TeleOp(name="SAHIL USE THIS", group="TeleOp")
 public class Test extends LinearOpMode {
 
@@ -175,9 +176,6 @@ public class Test extends LinearOpMode {
                 Math.max(Math.abs(fl), Math.abs(bl)),
                 Math.max(Math.abs(fr), Math.abs(br))
         );
-        if (Math.abs(x) > 0.05) {
-            r = 0;
-        }
 
         if (max > 1.0) {
             fl /= max;

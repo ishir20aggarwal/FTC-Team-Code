@@ -20,7 +20,11 @@ public class BlueAutoClose extends LinearOpMode {
     private ElapsedTime autoTimer = new ElapsedTime();
 
     //public static volatile Pose2d lastPose = new Pose2d(0, 0, 0); // volatile so other threads read latest
-    private double launchPower = 0.76;
+    private double launchPower = 0.68;
+
+    private double servoPosUp = 0.12;
+
+    private double servoPosDown = 0.53;
 
     // ===== Pose tracker thread control =====
     private Thread poseThread;
@@ -39,7 +43,7 @@ public class BlueAutoClose extends LinearOpMode {
         intakeRight = hardwareMap.get(DcMotorEx.class, "intakeRight");
 
         servoStopper = hardwareMap.get(ServoImplEx.class, "servoStopper");
-        servoStopper.setPosition(0.53);
+        servoStopper.setPosition(servoPosDown);
 
         Pose2d beginPose = new Pose2d(-50, -50, Math.toRadians(-130));
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
@@ -58,8 +62,8 @@ public class BlueAutoClose extends LinearOpMode {
         // (Optional) initialize lastPose immediately
         PoseStorage.lastPose = drive.localizer.getPose();
 
-        intakeLeft.setPower(1);
-        intakeRight.setPower(1);
+        intakeLeft.setPower(0.8);
+        intakeRight.setPower(0.8);
         motorLeft.setPower(launchPower);
         motorRight.setPower(launchPower);
 
@@ -83,21 +87,23 @@ public class BlueAutoClose extends LinearOpMode {
                             .strafeToLinearHeading(new Vector2d(10, -20), Math.toRadians(90))
                             .strafeTo(new Vector2d(10, -55))
                             .setReversed(false)
-                            .strafeToLinearHeading(new Vector2d(-2, -40), Math.toRadians(-180))
-                            .strafeTo(new Vector2d(-1, -47))
-                            .waitSeconds(0.20)
+                            .strafeToLinearHeading(new Vector2d(1, -36), Math.toRadians(-180))
+                            .strafeTo(new Vector2d(-1, -46))
+                            .waitSeconds(0.50)
                             .strafeTo(new Vector2d(0, -30))
-                            .strafeToLinearHeading(new Vector2d(-15, -20), Math.toRadians(-130))
+                            .strafeToLinearHeading(new Vector2d(-15, -20), Math.toRadians(-140))
                             .build()
             );
         }
+
+        launchPower = 0.64;
 
         lebron();
 
         if (opModeIsActive()) {
             Actions.runBlocking(
                     drive.actionBuilder(drive.localizer.getPose())
-                            .strafeToLinearHeading(new Vector2d(-12, -26), Math.toRadians(90))
+                            .strafeToLinearHeading(new Vector2d(-8, -26), Math.toRadians(90))
                             .setReversed(true)
                             .strafeTo(new Vector2d(-12, -60))
                             .setReversed(false)
@@ -105,6 +111,8 @@ public class BlueAutoClose extends LinearOpMode {
                             .build()
             );
         }
+
+        launchPower = 0.64;
 
         lebron();
 
@@ -119,6 +127,8 @@ public class BlueAutoClose extends LinearOpMode {
                             .build()
             );
         }
+
+        launchPower = 0.64;
 
         lebron();
          if (opModeIsActive()) {
@@ -172,7 +182,7 @@ public class BlueAutoClose extends LinearOpMode {
 
                 if (opModeIsActive()) {
                     intakeServo.setPosition(1.00);
-                    servoStopper.setPosition(0.53);
+                    servoStopper.setPosition(servoPosDown);
                 }
 
             } catch (InterruptedException e) {
@@ -186,11 +196,14 @@ public class BlueAutoClose extends LinearOpMode {
 
         intakeRight.setPower(0.2);
         intakeLeft.setPower(0.2);
-        servoStopper.setPosition(0.1);
+        servoStopper.setPosition(servoPosUp);
+        launchPower -= 0.1;
         sleepQuiet(100);
+
 
         intakeServo.setPosition(0.72);
         sleepQuiet(500);
+        launchPower += 0.1;
 
         intakeServo.setPosition(0.50);
         sleepQuiet(500);
@@ -199,8 +212,8 @@ public class BlueAutoClose extends LinearOpMode {
         sleepQuiet(200);
         delayedServoReset();
 
-        intakeRight.setPower(1);
-        intakeLeft.setPower(1);
+        intakeRight.setPower(0.8);
+        intakeLeft.setPower(0.8);
     }
 
     private void sleepQuiet(long ms) {
