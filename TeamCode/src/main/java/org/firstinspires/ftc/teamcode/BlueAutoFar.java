@@ -23,7 +23,7 @@ public class BlueAutoFar extends LinearOpMode {
     private Servo intakeServo;
 
     private Servo servoStopper;
-    private double launchPower = .85;
+    private double launchPower = .95;
     private double servoPosUp = 0.12;
 
     private double servoPosDown = 0.53;
@@ -69,7 +69,7 @@ public class BlueAutoFar extends LinearOpMode {
                     drive.actionBuilder(beginPose)
                             //.setReversed(true)
                             .strafeTo(new Vector2d(56, -12))
-                            .turn(Math.toRadians(18))
+                            .turn(Math.toRadians(20))
 
                             .build()
             );
@@ -118,7 +118,7 @@ public class BlueAutoFar extends LinearOpMode {
             Actions.runBlocking(
                     drive.actionBuilder(beginPose)
                             //.setReversed(true)
-                            .strafeTo(new Vector2d(55, -25))
+                            .strafeTo(new Vector2d(55, -22))
 
                             .build()
 
@@ -145,7 +145,7 @@ public class BlueAutoFar extends LinearOpMode {
 
                             //comes back to shoot brrrrr
 
-                            .strafeToLinearHeading(new Vector2d(47, -12), Math.toRadians(180))
+                            .strafeToLinearHeading(new Vector2d(47, -10), Math.toRadians(180))
 
                             .turn(Math.toRadians(18))
 

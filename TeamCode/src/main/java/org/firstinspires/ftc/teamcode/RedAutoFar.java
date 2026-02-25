@@ -23,7 +23,7 @@ public class RedAutoFar extends LinearOpMode {
     private Servo intakeServo;
 
     private Servo servoStopper;
-    private double launchPower = .85;
+    private double launchPower = .95;
     private double servoPosUp = 0.12;
 
     private double servoPosDown = 0.53;
@@ -69,7 +69,7 @@ public class RedAutoFar extends LinearOpMode {
                     drive.actionBuilder(beginPose)
                             //.setReversed(true)
                             .strafeTo(new Vector2d(56, 12))
-                            .turn(Math.toRadians(-18))
+                            .turn(Math.toRadians(-20))
 
                             .build()
             );
@@ -84,7 +84,7 @@ public class RedAutoFar extends LinearOpMode {
 
                             //turns to the point where it starts spline
                             .setReversed(true)
-                            .strafeToLinearHeading(new Vector2d(57, 45), Math.toRadians(-110))
+                            .strafeToLinearHeading(new Vector2d(57, 45), Math.toRadians(110))
 
                             //intake method
                             .strafeTo(new Vector2d(51,25))
@@ -98,7 +98,7 @@ public class RedAutoFar extends LinearOpMode {
                             //.splineTo(new Vector2d(65, -50), Math.toRadians(180))
 
                             //comes back to shoot brrrrr
-                            .strafeToLinearHeading(new Vector2d(53, 8), Math.toRadians(180))
+                            .strafeToLinearHeading(new Vector2d(53,8 ), Math.toRadians(180))
                             .turn(Math.toRadians(-20))
 
 
@@ -134,7 +134,7 @@ public class RedAutoFar extends LinearOpMode {
 
                             //turns to the point where it starts spline
                             //.strafeTo(new Vector2d(,-5))
-                            .strafeToLinearHeading(new Vector2d(55,25),Math.toRadians(-90))
+                            .strafeToLinearHeading(new Vector2d(55,25),Math.toRadians(90))
                             .waitSeconds(2)
                             //.splineTo(new Vector2d(60, -65), Math.toRadians(130))
                             .strafeTo(new Vector2d(56,50))
@@ -145,7 +145,7 @@ public class RedAutoFar extends LinearOpMode {
 
                             //comes back to shoot brrrrr
 
-                            .strafeToLinearHeading(new Vector2d(47, 12), Math.toRadians(-180))
+                            .strafeToLinearHeading(new Vector2d(47, 12), Math.toRadians(180))
 
                             .turn(Math.toRadians(-18))
 
