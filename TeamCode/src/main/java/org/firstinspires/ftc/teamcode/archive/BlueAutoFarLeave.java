@@ -1,43 +1,40 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.archive;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+
+import org.firstinspires.ftc.teamcode.MecanumDrive;
+
 @Disabled
-//@Autonomous(name = "Red Auto Far Leave", group = "Auto")
-public class RedAutoFarLeave extends LinearOpMode {
+//@Autonomous(name = "Blue Auto Far Leave", group = "Auto")
+public class BlueAutoFarLeave extends LinearOpMode {
 
     private DcMotorEx motorLeft, motorRight;
     private DcMotorEx intakeLeft, intakeRight;
     private Servo intakeServo;
 
-    private double launchPower = 0.61;
-
-
-
-    ;
+    private double launchPower = 0.67;
 
     @Override
     public void runOpMode() {
 
         motorLeft = hardwareMap.get(DcMotorEx.class, "motorLeft");
         motorRight = hardwareMap.get(DcMotorEx.class, "motorRight");
-        //motorRight.setDirection(DcMotor.Direction.REVERSE);
+//        motorLeft.setDirection(DcMotor.Direction.REVERSE);
 
         intakeServo = hardwareMap.get(Servo.class, "intakeServo");
         intakeServo.setPosition(1.0);
 
         intakeLeft = hardwareMap.get(DcMotorEx.class, "intakeLeft");
         intakeRight = hardwareMap.get(DcMotorEx.class, "intakeRight");
-        //intakeRight.setDirection(DcMotor.Direction.REVERSE);
+//        intakeLeft.setDirection(DcMotor.Direction.REVERSE);
 
-        Pose2d beginPose = new Pose2d(-50, 50, Math.toRadians(130));
+        Pose2d beginPose = new Pose2d(-50, -50, Math.toRadians(-130));
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
 
         waitForStart();
@@ -60,12 +57,12 @@ public class RedAutoFarLeave extends LinearOpMode {
         if (opModeIsActive()) {
             Actions.runBlocking(
                     drive.actionBuilder(drive.localizer.getPose())
-                            .turn(Math.toRadians(140))
-                            .strafeTo(new Vector2d(-14,55))
-                            .lineToY(55)
+                            .turn(Math.toRadians(-140))
+                            .strafeTo(new Vector2d(-14,-55))
+                            .lineToY(-55)
                             .setReversed(false)
                             .lineToY(0)
-                            .turn(Math.toRadians(-145))
+                            .turn(Math.toRadians(145))
                             .build()
             );
         }
@@ -75,14 +72,14 @@ public class RedAutoFarLeave extends LinearOpMode {
         if (opModeIsActive()) {
             Actions.runBlocking(
                     drive.actionBuilder(drive.localizer.getPose())
-                            .turn(Math.toRadians(141))
+                            .turn(Math.toRadians(-141))
                             .setReversed(true)
-                            .strafeTo(new Vector2d(10, 20))
-                            .strafeTo(new Vector2d(10, 60))
+                            .strafeTo(new Vector2d(12, -20))
+                            .strafeTo(new Vector2d(12, -60))
                             .setReversed(true)
-                            .lineToY(53)
+                            .lineToY(-52)
                             .setReversed(false)
-                            .lineToY(20)
+                            .lineToY(-20)
                             .build()
             );
         }
@@ -116,5 +113,7 @@ public class RedAutoFarLeave extends LinearOpMode {
 
         motorLeft.setPower(0);
         motorRight.setPower(0);
+
     }
 }
+//test

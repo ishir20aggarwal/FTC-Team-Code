@@ -74,6 +74,7 @@ dependencies {
     }
 
 
+
     //psi kit
     //implementation project(':FtcRobotController')
     // IMPORTANT
@@ -95,6 +96,13 @@ dependencies {
     implementation 'com.acmerobotics.roadrunner:core:0.5.3'
     //implementation 'com.acmerobotics.dashboard:dashboard:0.3.10'
     implementation 'com.github.NoahBres:jotai:1.0.3'
+
+
+
+
+
+
+    implementation("page.j5155.AdvantageScope:lite:v26.0.0")
 
 
 }

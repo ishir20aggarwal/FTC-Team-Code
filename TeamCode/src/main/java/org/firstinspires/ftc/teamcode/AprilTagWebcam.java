@@ -42,7 +42,7 @@ public class AprilTagWebcam {
         VisionPortal.Builder builder = new VisionPortal.Builder();
         builder.setCamera(hwMap.get(WebcamName.class, "Webcam 1"));
         builder.setCameraResolution(new Size(640, 480));
-        builder.enableLiveView(false); // reduce latency
+        builder.enableLiveView(true); // reduce latency
 
         builder.addProcessor(aprilTagProcessor);
 

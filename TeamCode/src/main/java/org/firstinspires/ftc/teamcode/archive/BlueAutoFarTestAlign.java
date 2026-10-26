@@ -1,16 +1,12 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.archive;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
-import com.acmerobotics.roadrunner.Vector2d;
 
 // Change this import to YOUR drive class (often MecanumDrive in RR 1.0 quickstart)
 // import org.firstinspires.ftc.teamcode.MecanumDrive;
@@ -18,6 +14,9 @@ import com.acmerobotics.roadrunner.Vector2d;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+
+import org.firstinspires.ftc.teamcode.MecanumDrive;
+
 @Disabled
 //@Autonomous(name = "Blue Auto Far DONT", group = "Auto")
 public class BlueAutoFarTestAlign extends LinearOpMode {

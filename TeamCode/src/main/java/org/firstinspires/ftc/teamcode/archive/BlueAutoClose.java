@@ -1,9 +1,10 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.archive;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -11,181 +12,140 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.MecanumDrive;
+import org.firstinspires.ftc.teamcode.PoseStorage;
 
-import java.util.Vector;
-
-
-@Autonomous(name = "Red Auto Far", group = "Auto")
-public class RedAutoFar extends LinearOpMode {
-
+@Autonomous(name = "Blue Auto Close", group = "Auto")
+public class BlueAutoClose extends LinearOpMode {
     private DcMotorEx motorLeft, motorRight;
     private DcMotorEx intakeLeft, intakeRight;
     private Servo intakeServo;
+    private ServoImplEx servoStopper;
+    private ElapsedTime autoTimer = new ElapsedTime();
 
-    private Servo servoStopper;
-    private double launchPower = .95;
+    //public static volatile Pose2d lastPose = new Pose2d(0, 0, 0); // volatile so other threads read latest
+    private double launchPower = 0.68;
+
     private double servoPosUp = 0.12;
 
     private double servoPosDown = 0.53;
+
+    // ===== Pose tracker thread control =====
     private Thread poseThread;
 
     @Override
     public void runOpMode() {
-
         motorLeft = hardwareMap.get(DcMotorEx.class, "motorLeft");
         motorRight = hardwareMap.get(DcMotorEx.class, "motorRight");
-        //motorRight.setDirection(DcMotor.Direction.REVERSE);
-        //motorRight.setDirection(DcMotor.Direction.REVERSE);
-        //motorLeft.setDirection(DcMotor.Direction.REVERSE);
+        motorRight.setDirection(DcMotor.Direction.REVERSE);
+        motorLeft.setDirection(DcMotor.Direction.REVERSE);
 
         intakeServo = hardwareMap.get(Servo.class, "intakeServo");
         intakeServo.setPosition(1.0);
 
         intakeLeft = hardwareMap.get(DcMotorEx.class, "intakeLeft");
         intakeRight = hardwareMap.get(DcMotorEx.class, "intakeRight");
-        //intakeRight.setDirection(DcMotor.Direction.REVERSE);
-        servoStopper = hardwareMap.get(Servo.class, "servoStopper");
 
-        Pose2d beginPose = new Pose2d(61.5, -15, Math.toRadians(180));
+        servoStopper = hardwareMap.get(ServoImplEx.class, "servoStopper");
+        servoStopper.setPosition(servoPosDown);
+
+        Pose2d beginPose = new Pose2d(-50, -50, Math.toRadians(-130));
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
 
+        telemetry.addLine("Ready");
+        telemetry.update();
+
         waitForStart();
+        autoTimer.reset();
+
         if (!opModeIsActive()) return;
 
-        intakeLeft.setPower(0.8);
-        intakeRight.setPower(0.8);
-        servoStopper.setPosition(servoPosDown);
-        motorLeft.setPower(-launchPower);
-        motorRight.setPower(-launchPower);
-
+        // Start continuous pose tracking AFTER start
         startPoseTracking(drive);
 
         // (Optional) initialize lastPose immediately
         PoseStorage.lastPose = drive.localizer.getPose();
 
+        intakeLeft.setPower(0.8);
+        intakeRight.setPower(0.8);
+        motorLeft.setPower(launchPower);
+        motorRight.setPower(launchPower);
 
         if (opModeIsActive()) {
             Actions.runBlocking(
                     drive.actionBuilder(beginPose)
-                            //.setReversed(true)
-                            .strafeTo(new Vector2d(56, 12))
-                            .turn(Math.toRadians(-20))
 
-                            .build()
-            );
-        }
 
-        if (opModeIsActive()) fire3Rings();
-        if (opModeIsActive()) {
-            //drive.defaultVelConstraint.equals(20);
-            Actions.runBlocking(
-                    drive.actionBuilder(drive.localizer.getPose())
-//
-
-                            //turns to the point where it starts spline
                             .setReversed(true)
-                            .strafeToLinearHeading(new Vector2d(57, 45), Math.toRadians(110))
+                            .lineToX(-11)
+                            .build()
+            );
+        }
 
-                            //intake method
-                            .strafeTo(new Vector2d(51,25))
-                            .strafeTo(new Vector2d(60,55))
-                            .strafeTo(new Vector2d(60,25))
+        lebron();
 
-                            //.strafeTo(new Vector2d(40,-50))
-
+        if (opModeIsActive()) {
+            Actions.runBlocking(
+                    drive.actionBuilder(drive.localizer.getPose())
+                            .setReversed(true)
+                            .strafeToLinearHeading(new Vector2d(10, -20), Math.toRadians(90))
+                            .strafeTo(new Vector2d(10, -55))
                             .setReversed(false)
-
-                            //.splineTo(new Vector2d(65, -50), Math.toRadians(180))
-
-                            //comes back to shoot brrrrr
-                            .strafeToLinearHeading(new Vector2d(53,8 ), Math.toRadians(180))
-                            .turn(Math.toRadians(-20))
-
-
-
-
+                            .strafeToLinearHeading(new Vector2d(3, -36), Math.toRadians(-180))
+                            .strafeTo(new Vector2d(3, -46))
+                            .waitSeconds(0.50)
+                            .strafeTo(new Vector2d(0, -30))
+                            .strafeToLinearHeading(new Vector2d(-15, -20), Math.toRadians(-140))
                             .build()
-            );
-
-        }
-
-
-
-        if (opModeIsActive()) fire2Rings();
-
-
-        if (opModeIsActive()) {
-            Actions.runBlocking(
-                    drive.actionBuilder(beginPose)
-                            //.setReversed(true)
-                            .strafeTo(new Vector2d(55, 25))
-
-                            .build()
-
             );
         }
 
+        launchPower = 0.64;
+
+        lebron();
 
         if (opModeIsActive()) {
-            //drive.defaultVelConstraint.equals(20);
             Actions.runBlocking(
                     drive.actionBuilder(drive.localizer.getPose())
-//
-
-                            //turns to the point where it starts spline
-                            //.strafeTo(new Vector2d(,-5))
-                            .strafeToLinearHeading(new Vector2d(55,25),Math.toRadians(90))
-                            .waitSeconds(2)
-                            //.splineTo(new Vector2d(60, -65), Math.toRadians(130))
-                            .strafeTo(new Vector2d(56,50))
-                            .strafeTo(new Vector2d(56,25))
-                            .strafeTo(new Vector2d(48,50))
-
-
-
-                            //comes back to shoot brrrrr
-
-                            .strafeToLinearHeading(new Vector2d(47, 12), Math.toRadians(180))
-
-                            .turn(Math.toRadians(-18))
-
-
-
-
+                            .strafeToLinearHeading(new Vector2d(-8, -26), Math.toRadians(90))
+                            .setReversed(true)
+                            .strafeTo(new Vector2d(-12, -60))
+                            .setReversed(false)
+                            .strafeToLinearHeading(new Vector2d(-20, -35), Math.toRadians(-140))
                             .build()
             );
-
         }
 
+        launchPower = 0.64;
 
+        lebron();
 
-        if (opModeIsActive()) fire3Rings();
         if (opModeIsActive()) {
-            //drive.defaultVelConstraint.equals(20);
             Actions.runBlocking(
                     drive.actionBuilder(drive.localizer.getPose())
-//
-
-                            //turns to the point where it starts spline
-                            .strafeTo(new Vector2d(56,25))
-
-
-
-
-
+                            .strafeToLinearHeading(new Vector2d(29, -35), Math.toRadians(90))
+                            .setReversed(true)
+                            .strafeTo(new Vector2d(29, -80))
+                            .setReversed(false)
+                            .strafeToLinearHeading(new Vector2d(-30, -35), Math.toRadians(-120))
                             .build()
             );
-
         }
-    }
 
+        launchPower = 0.64;
 
-
-    private void sleepQuiet(long ms) {
-        long end = System.currentTimeMillis() + ms;
-        while (opModeIsActive() && System.currentTimeMillis() < end) {
-            idle();
+        lebron();
+         if (opModeIsActive()) {
+            Actions.runBlocking(
+                    drive.actionBuilder(drive.localizer.getPose())
+                            //.strafeTo(new Vector2d(-15, -40))
+                            //.strafeTo(new Vector2d(0,0))
+                            .build()
+            );
         }
+
+        // Stop thread cleanly at the end
+        stopPoseTracking();
     }
 
     private void startPoseTracking(MecanumDrive drive) {
@@ -235,57 +195,35 @@ public class RedAutoFar extends LinearOpMode {
         }).start();
     }
 
-
-
-
-
-    private void fire3Rings() {
+    private void lebron() {
         if (!opModeIsActive()) return;
+
         intakeRight.setPower(0.2);
         intakeLeft.setPower(0.2);
         servoStopper.setPosition(servoPosUp);
-        sleepQuiet(200);
+        launchPower -= 0.1;
+        sleepQuiet(100);
+
+
         intakeServo.setPosition(0.72);
-        sleepQuiet(1400);
+        sleepQuiet(500);
+        launchPower += 0.1;
+
         intakeServo.setPosition(0.50);
-        //launchPower -= 0.05;
-        sleepQuiet(1400);
+        sleepQuiet(500);
 
         intakeServo.setPosition(0.24);
         sleepQuiet(200);
-        //intakeServo.setPosition(1.00);
         delayedServoReset();
+
         intakeRight.setPower(0.8);
         intakeLeft.setPower(0.8);
-
-        //servoStopper.setPosition(0.4);
-
-        //motorLeft.setPower(0);
-        //motorRight.setPower(0);
-
     }
 
-    private void fire2Rings() {
-        if (!opModeIsActive()) return;
-        intakeRight.setPower(0.2);
-        intakeLeft.setPower(0.2);
-        servoStopper.setPosition(servoPosUp);
-        sleepQuiet(1400);
-        intakeServo.setPosition(0.50);
-        //launchPower -= 0.05;
-        sleepQuiet(1400);
-
-        intakeServo.setPosition(0.24);
-        sleepQuiet(600);
-        //intakeServo.setPosition(1.00);
-        delayedServoReset();
-        intakeRight.setPower(0.8);
-        intakeLeft.setPower(0.8);
-
-        //servoStopper.setPosition(0.4);
-
-        //motorLeft.setPower(0);
-        //motorRight.setPower(0);
-
+    private void sleepQuiet(long ms) {
+        long end = System.currentTimeMillis() + ms;
+        while (opModeIsActive() && System.currentTimeMillis() < end) {
+            idle();
+        }
     }
 }

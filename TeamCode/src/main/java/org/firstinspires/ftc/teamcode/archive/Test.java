@@ -1,27 +1,20 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.archive;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.PoseVelocity2d;
-import com.acmerobotics.roadrunner.Vector2d;
 
-import java.net.IDN;
-@Disabled
-@TeleOp(name="SAHIL USE THIS", group="TeleOp")
+import org.firstinspires.ftc.teamcode.MecanumDrive;
+
+@TeleOp(name="Drivetrain", group="TeleOp")
 public class Test extends LinearOpMode {
 
     private DcMotorEx topLeft, bottomLeft, topRight, bottomRight;
-    private DcMotorEx motorLeft, motorRight;
-    private DcMotorEx intakeLeft, intakeRight;
-    private ServoImplEx intakeServo;
-    private ServoImplEx servoStopper;
+    //private DcMotorEx motorLeft, motorRight;
+    //private DcMotorEx intakeLeft, intakeRight;
+   // private ServoImplEx intakeServo;
+    //private ServoImplEx servoStopper;
 
     private volatile boolean isLaunching = false;
     private MecanumDrive drive;
@@ -70,10 +63,10 @@ public class Test extends LinearOpMode {
             launcherOn = true;
 
             if(!isLaunching == true) {
-                servoStopper.setPosition(0.53);
+                //servoStopper.setPosition(0.53);
             }
             else{
-                servoStopper.setPosition(0.1);
+                //servoStopper.setPosition(0.1);
 
             }
 
@@ -120,12 +113,12 @@ public class Test extends LinearOpMode {
         topRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         bottomRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        motorLeft  = hardwareMap.get(DcMotorEx.class, "motorRight");
-        motorRight = hardwareMap.get(DcMotorEx.class, "motorLeft");
-        motorLeft.setDirection(DcMotorEx.Direction.REVERSE);
-        motorRight.setDirection(DcMotorEx.Direction.REVERSE);
-        motorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        motorLeft  = hardwareMap.get(DcMotorEx.class, "motorRight");
+//        motorRight = hardwareMap.get(DcMotorEx.class, "motorLeft");
+//        motorLeft.setDirection(DcMotorEx.Direction.REVERSE);
+//        motorRight.setDirection(DcMotorEx.Direction.REVERSE);
+//        motorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        motorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         /*PIDFCoefficients pidfCoefficientsL = new PIDFCoefficients(PL, IL, DL, FL);
         PIDFCoefficients pidfCoefficientsR = new PIDFCoefficients(PR, IR, DR, FR);
@@ -144,14 +137,14 @@ public class Test extends LinearOpMode {
         motorRight.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,pidfCoefficientsR);*/
 
 
-        intakeServo = hardwareMap.get(ServoImplEx.class, "intakeServo");
-        intakeServo.setPosition(1.00);
-
-        servoStopper = hardwareMap.get(ServoImplEx.class, "servoStopper");
-
-
-        intakeLeft  = hardwareMap.get(DcMotorEx.class, "intakeLeft");
-        intakeRight = hardwareMap.get(DcMotorEx.class, "intakeRight");
+//        intakeServo = hardwareMap.get(ServoImplEx.class, "intakeServo");
+//        intakeServo.setPosition(1.00);
+//
+//        servoStopper = hardwareMap.get(ServoImplEx.class, "servoStopper");
+//
+//
+//        intakeLeft  = hardwareMap.get(DcMotorEx.class, "intakeLeft");
+//        intakeRight = hardwareMap.get(DcMotorEx.class, "intakeRight");
 
         // REQUIRED: initialize RoadRunner drive so lock can command motors + read odometry
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
@@ -230,8 +223,8 @@ public class Test extends LinearOpMode {
 
     private void launch() {
         //double p = launcherOn ? -launchPower : 0;
-        motorLeft.setPower(launchPower);
-        motorRight.setPower(launchPower);
+//        motorLeft.setPower(launchPower);
+//        motorRight.setPower(launchPower);
     }
 
 
@@ -243,8 +236,8 @@ public class Test extends LinearOpMode {
         }
         xPressedLast = gamepad1.x;
         if(!servoBusy) {
-            intakeLeft.setPower(intakeMotorsOn ? 0.8 : 0.0);
-            intakeRight.setPower(intakeMotorsOn ? 0.8 : 0.0);
+//            intakeLeft.setPower(intakeMotorsOn ? 0.8 : 0.0);
+//            intakeRight.setPower(intakeMotorsOn ? 0.8 : 0.0);
         }
     }
 
@@ -291,20 +284,20 @@ public class Test extends LinearOpMode {
 
             new Thread(() -> {
                 try {
-                    intakeRight.setPower(0.2);
-                    intakeLeft.setPower(0.2);
-                    servoStopper.setPosition(0.4);
+//                    intakeRight.setPower(0.2);
+//                    intakeLeft.setPower(0.2);
+//                    servoStopper.setPosition(0.4);
                     launcherOn = true;
                     isLaunching = true;
-                    intakeServo.setPosition(0.72);
+//                    intakeServo.setPosition(0.72);
                     sleepQuiet(500);
                     //launchPower += 0.03;
-                    intakeServo.setPosition(0.50);
+//                    intakeServo.setPosition(0.50);
                     //launchPower += 0.03;
                     sleepQuiet(500);
-                    intakeServo.setPosition(0.24);
+//                    intakeServo.setPosition(0.24);
                     sleepQuiet(600);
-                    intakeServo.setPosition(1.00);
+//                    intakeServo.setPosition(1.00);
 
                     //launchPower -= 0.06;
 
@@ -334,27 +327,27 @@ public class Test extends LinearOpMode {
 
     private void sendTelemetry() {
         telemetry.addData("drivetrain speed", bottomRight.getPower());
-        telemetry.addData("Launcher", launcherOn);
-        telemetry.addData("Power", (motorLeft.getPower()+motorRight.getPower())/2);
-        telemetry.addData("Servo Busy", servoBusy);
-        telemetry.addData("Servo Pos", intakeServo.getPosition());
-        telemetry.addData("intake", intakeLeft.getPower());
-        telemetry.addData("Servo Stopper Pos",servoStopper.getPosition());
-        telemetry.addData("|", "|");
-        telemetry.addData("|", "|");
-        telemetry.addData("|", "|");
-        telemetry.addData("KAVIN - left outtake velcoity", motorLeft.getVelocity());
-        telemetry.addData("KAVIN - right outtake velocity", motorRight.getVelocity());
-        telemetry.addData("SUNMAY - left outtake rpm", motorLeft.getVelocity() / 28 * 60);
-        telemetry.addData("SUNMAY - right outtake rpm", motorRight.getVelocity() / 28 * 60);
-        telemetry.addData("|", "|");
-        telemetry.addData("|", "|");
-        telemetry.addData("|", "|");
-        telemetry.addData("Target RPM", -launchPower / 28 * 60);
-        telemetry.addData("Left RPM", motorLeft.getVelocity());
-        telemetry.addData("Right RPM", motorRight.getVelocity());
-        telemetry.addData("L-R Diff", motorLeft.getVelocity() - motorRight.getVelocity());
-        telemetry.addData("Run-Time", getRuntime());
+//        telemetry.addData("Launcher", launcherOn);
+//        telemetry.addData("Power", (motorLeft.getPower()+motorRight.getPower())/2);
+//        telemetry.addData("Servo Busy", servoBusy);
+//        telemetry.addData("Servo Pos", intakeServo.getPosition());
+//        telemetry.addData("intake", intakeLeft.getPower());
+//        telemetry.addData("Servo Stopper Pos",servoStopper.getPosition());
+//        telemetry.addData("|", "|");
+//        telemetry.addData("|", "|");
+//        telemetry.addData("|", "|");
+//        telemetry.addData("KAVIN - left outtake velcoity", motorLeft.getVelocity());
+//        telemetry.addData("KAVIN - right outtake velocity", motorRight.getVelocity());
+//        telemetry.addData("SUNMAY - left outtake rpm", motorLeft.getVelocity() / 28 * 60);
+//        telemetry.addData("SUNMAY - right outtake rpm", motorRight.getVelocity() / 28 * 60);
+//        telemetry.addData("|", "|");
+//        telemetry.addData("|", "|");
+//        telemetry.addData("|", "|");
+//        telemetry.addData("Target RPM", -launchPower / 28 * 60);
+//        telemetry.addData("Left RPM", motorLeft.getVelocity());
+//        telemetry.addData("Right RPM", motorRight.getVelocity());
+//        telemetry.addData("L-R Diff", motorLeft.getVelocity() - motorRight.getVelocity());
+//        telemetry.addData("Run-Time", getRuntime());
         telemetry.addData("Current Pose",drive.localizer.getPose());
         //telemetry.addData("Power");
 
