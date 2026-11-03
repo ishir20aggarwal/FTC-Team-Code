@@ -153,7 +153,7 @@ public class PIDF_Testing extends LinearOpMode {
             double currentVelocity = motor.getVelocity();
 
             if (currentMode == ControlMode.POWER) {
-                if (testTimer.seconds() > 3.0) {
+                if (testTimer.seconds() > 100.0) {
                     isTesting = false;
                 }
             } else {
@@ -164,7 +164,7 @@ public class PIDF_Testing extends LinearOpMode {
                 }
 
                 // 5-second safety timeout
-                if (testTimer.seconds() > 5.0 && timeToTargetSeconds < 0) {
+                if (testTimer.seconds() > 100.0 && timeToTargetSeconds < 0) {
                     timeToTargetSeconds = -999.0;
                     isTesting = false;
                 }

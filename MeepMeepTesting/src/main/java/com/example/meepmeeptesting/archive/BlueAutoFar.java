@@ -1,4 +1,4 @@
-package com.example.meepmeeptesting;
+package com.example.meepmeeptesting.archive;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -6,44 +6,37 @@ import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 
-import javax.imageio.ImageIO;
-
-public class BlueAutoFarTestAlign {
-
+public class BlueAutoFar {
     public static void main(String[] args) {
-
 
         MeepMeep meepMeep = new MeepMeep(800);
 
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
-                .setConstraints(60, 60,
-                        Math.toRadians(180), Math.toRadians(180), 11.4)
+                // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
+                .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 18)
                 .build();
 
         // Flipped start pose: same x, y reflected, heading negated
         Pose2d start = new Pose2d(
                 61.5,
-                -10,
+                -15,
                 Math.toRadians(180)
         );
 
         myBot.runAction(
                 myBot.getDrive().actionBuilder(start)
                         .strafeTo(new Vector2d(56,-12))
-                        .turn(Math.toRadians(24))
-                        .strafeTo(new Vector2d(60,-40))
-                        .turn(Math.toRadians(-117))
-                        .strafeTo(new Vector2d(33,-25))
-                        .waitSeconds(0.5d)
-                        .strafeTo(new Vector2d(33,-65))
-                        .strafeTo(new Vector2d(56,-12))
-                        .turn(Math.toRadians(128))
-                        .turn(Math.toRadians(80))
-                        .strafeTo(new Vector2d(-1,-20))
-                        .strafeTo(new Vector2d(-1, -54))
+                        .turn(Math.toRadians(20))
+                        .setReversed(true)
+                        .strafeToLinearHeading(new Vector2d(47, -42), Math.toRadians(90))
+                        .splineTo(new Vector2d(65, -62), Math.toRadians(165))
+                        .strafeToLinearHeading(new Vector2d(60, -5), Math.toRadians(180))
+                        .turn(Math.toRadians(20))
+
                         .build()
         );
 
