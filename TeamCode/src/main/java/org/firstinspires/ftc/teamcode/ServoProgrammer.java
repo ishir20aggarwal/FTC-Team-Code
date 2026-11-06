@@ -36,7 +36,7 @@ public class ServoProgrammer extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            // Fine adjustments with D-pad (single-click detection)
+            // Fine adjustments with D-pad
             if (gamepad1.dpad_up && !dpadUpPressedLast) {
                 adjustPosition(0.01);
             }

@@ -63,7 +63,8 @@ public class BiobuzzBasicAuto {
                         .strafeToLinearHeading(new Vector2d(56,-16),Math.toRadians(180))
                         //shoot 4 pollen
                         .waitSeconds(2.5)
-                        .strafeToConstantHeading(new Vector2d(-34,-60))
+                        .strafeToConstantHeading(new Vector2d(20,-50))
+                        .strafeToConstantHeading(new Vector2d(-36,-60))
 
 
 
