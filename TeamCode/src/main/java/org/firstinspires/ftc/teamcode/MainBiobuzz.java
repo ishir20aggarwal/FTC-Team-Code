@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
@@ -30,8 +31,8 @@ public class MainBiobuzz extends LinearOpMode {
     private boolean launcherOn = false;
     private double launchPower = 1200;
 
-    private final double pollenServoPos = 0.99;
-    private final double nectarServoPos = 0.82;
+    private final double pollenServoPos = 0.82;
+    private final double nectarServoPos = 0.99;
 
     private final double POWER_STEP = 50;
     private final long ADJUST_DELAY_MS = 120;
@@ -94,6 +95,7 @@ public class MainBiobuzz extends LinearOpMode {
         intake = hardwareMap.get(DcMotorEx.class,"intake");
         flywheel.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         intake.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        intake.setDirection(DcMotorSimple.Direction.REVERSE);
         flywheel.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         PIDFCoefficients pidf = new PIDFCoefficients(14,0,0,20.17037037037037037);
         flywheel.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER,pidf);
@@ -210,7 +212,7 @@ public class MainBiobuzz extends LinearOpMode {
         if (gamepad1.x && !xPressedLast) {
             intakeMotorsOn = !intakeMotorsOn;
         }
-        intake.setPower(intakeMotorsOn ? 0.5 : 0);
+        intake.setPower(intakeMotorsOn ? 1 : 0);
         xPressedLast = gamepad1.x;
     }
 
@@ -267,14 +269,16 @@ public class MainBiobuzz extends LinearOpMode {
 
     private void sendTelemetry() {
         telemetry.addData("Drivetrain speed:", rightBack.getPower());
-        telemetry.addData("Current Pose", drive.localizer.getPose());
+        telemetry.addData("Current Pose:", drive.localizer.getPose());
         telemetry.addLine("||||||||");
 
 
-        telemetry.addData("Detected Color", detectedColor);
+        telemetry.addData("Detected Color:", detectedColor);
 
 
-        telemetry.addData("Launcher Power", flywheel.getVelocity());
+        telemetry.addData("Launcher Velocity:", flywheel.getVelocity());
+        telemetry.addData("Launcher Power:",flywheel.getPower());
+        telemetry.addData("Intake Power:", intake.getPower());
         telemetry.addData("Servo Left Position:", servoLeft.getPosition());
         telemetry.addData("Servo Right Position:", servoRight.getPosition());
         telemetry.addLine("||||||||");
