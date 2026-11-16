@@ -33,6 +33,7 @@ public class MainBiobuzz extends LinearOpMode {
 
     private final double pollenServoPos = 0.82;
     private final double nectarServoPos = 0.99;
+    private final double initServoPos = 0.5;
 
     private final double POWER_STEP = 50;
     private final long ADJUST_DELAY_MS = 120;
@@ -107,8 +108,8 @@ public class MainBiobuzz extends LinearOpMode {
 
 
         // Default starting positions
-        servoLeft.setPosition(0.5);
-        servoRight.setPosition(0.5);
+        servoLeft.setPosition(initServoPos);
+        servoRight.setPosition(initServoPos);
 
         // Separate processors to track each color range
         redLocator = new ColorBlobLocatorProcessor.Builder()
