@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -22,6 +23,8 @@ public class MainBiobuzz extends LinearOpMode {
     private DcMotorEx leftFront, rightFront, leftBack, rightBack;
     private DcMotorEx flywheel;
     private ServoImplEx servoLeft, servoRight;
+
+    private CRServo leftOut, rightOut, leftIn, rightIn;
     private DcMotorEx intake;
 
     private MecanumDrive drive;
@@ -96,6 +99,7 @@ public class MainBiobuzz extends LinearOpMode {
         intake = hardwareMap.get(DcMotorEx.class,"intake");
         flywheel.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         intake.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        flywheel.setDirection(DcMotorSimple.Direction.REVERSE);
         intake.setDirection(DcMotorSimple.Direction.REVERSE);
         flywheel.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         PIDFCoefficients pidf = new PIDFCoefficients(14,0,0,20.17037037037037037);
@@ -105,6 +109,13 @@ public class MainBiobuzz extends LinearOpMode {
         servoLeft = hardwareMap.get(ServoImplEx.class, "servoLeft");
         servoRight = hardwareMap.get(ServoImplEx.class, "servoRight");
         servoRight.setDirection(ServoImplEx.Direction.REVERSE);
+
+        leftIn = hardwareMap.get(CRServo.class, "leftIn");
+        rightIn = hardwareMap.get(CRServo.class, "rightIn");
+        leftOut = hardwareMap.get(CRServo.class, "leftOut");
+        rightOut = hardwareMap.get(CRServo.class, "rightOut");
+
+
 
 
         // Default starting positions
@@ -140,9 +151,15 @@ public class MainBiobuzz extends LinearOpMode {
                 .addProcessor(yellowLocator)
                 .build();
 
-        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+        //drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
     }
 
+    // 1. Put these at the top of your OpMode class (outside handleDriving)
+    private double speedScale = 1.0;
+    private boolean lastDpadUp = false;
+    private boolean lastDpadDown = false;
+
+    // 2. Replace your existing method with this one
     private void handleDriving() {
         double y = -gamepad1.left_stick_y;      // forward/back
         double r = gamepad1.right_stick_x;      // rotation
@@ -168,26 +185,24 @@ public class MainBiobuzz extends LinearOpMode {
             br /= max;
         }
 
-        // Increase speed by 10%
-        if (gamepad1.a && gamepad1.dpad_up) {
-            fl *= 1.1;
-            bl *= 1.1;
-            fr *= 1.1;
-            br *= 1.1;
+        if (gamepad1.a && gamepad1.dpad_up && !lastDpadUp) {
+            speedScale = Math.min(1.0, speedScale + 0.1);
         }
 
-        // Decrease speed by 10%
-        if (gamepad1.a && gamepad1.dpad_down) {
-            fl *= 0.9;
-            bl *= 0.9;
-            fr *= 0.9;
-            br *= 0.9;
+
+        if (gamepad1.a && gamepad1.dpad_down && !lastDpadDown) {
+            speedScale = Math.max(0.1, speedScale - 0.1);
         }
 
-        leftFront.setPower(fl);
-        leftBack.setPower(bl);
-        rightFront.setPower(fr);
-        rightBack.setPower(br);
+
+        lastDpadUp = gamepad1.dpad_up;
+        lastDpadDown = gamepad1.dpad_down;
+
+
+        leftFront.setPower(fl * speedScale);
+        leftBack.setPower(bl * speedScale);
+        rightFront.setPower(fr * speedScale);
+        rightBack.setPower(br * speedScale);
     }
 
     private void handleLauncherPowerAdjust() {
@@ -205,7 +220,7 @@ public class MainBiobuzz extends LinearOpMode {
     }
 
     private void launch() {
-        double p = launcherOn ? -launchPower : 0;
+        double p = launcherOn ? launchPower : 0;
         flywheel.setVelocity(p);
     }
 
@@ -214,6 +229,10 @@ public class MainBiobuzz extends LinearOpMode {
             intakeMotorsOn = !intakeMotorsOn;
         }
         intake.setPower(intakeMotorsOn ? 1 : 0);
+        leftIn.setPower(intakeMotorsOn ? 1 : 0);
+        leftOut.setPower(intakeMotorsOn ? 1 : 0);
+        rightIn.setPower(intakeMotorsOn ? 1 : 0);
+        rightOut.setPower(intakeMotorsOn ? 1 : 0);
         xPressedLast = gamepad1.x;
     }
 
@@ -270,6 +289,7 @@ public class MainBiobuzz extends LinearOpMode {
 
     private void sendTelemetry() {
         telemetry.addData("Drivetrain speed:", rightBack.getPower());
+        telemetry.addData("Speed scale:", speedScale);
         telemetry.addData("Current Pose:", drive.localizer.getPose());
         telemetry.addLine("||||||||");
 
