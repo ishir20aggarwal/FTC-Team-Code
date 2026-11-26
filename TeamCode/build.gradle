@@ -15,6 +15,8 @@ apply plugin: 'com.android.application'
 // Include common definitions from above.
 apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
+apply plugin: 'com.android.application'
+apply plugin: 'dev.frozenmilk.sinister.sloth.load'
 
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
@@ -22,8 +24,33 @@ android {
     packagingOptions {
         jniLibs.useLegacyPackaging true
     }
+    sourceSets {
+        main {
+            java {
+                // Exclude a single file
+
+                // Exclude an entire subfolder (e.g., an experiments folder)
+                exclude '**/archive/**'
+                exclude '**/messages/**'
+            }
+        }
+    }
 }
 
 dependencies {
     implementation project(':FtcRobotController')
+    implementation("dev.frozenmilk.sinister:Sloth:0.3.2")
+    implementation("com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0")
+
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+        google()
+        maven { url "https://repo.dairy.foundation/releases/" }
+    }
+    dependencies {
+        classpath "dev.frozenmilk:Load:0.3.2"
+    }
 }
