@@ -23,6 +23,9 @@ public class MainBiobuzz extends LinearOpMode {
     private DcMotorEx flywheel;
     private ServoImplEx servoLeft, servoRight;
 
+    private ServoImplEx scooper;
+
+
     private DcMotorEx leftTransfer, rightTransfer;
     private DcMotorEx intake;
 
@@ -34,8 +37,7 @@ public class MainBiobuzz extends LinearOpMode {
 
     private final double pollenServoPos = 0.6;
     private final double nectarServoPos = 0.4;
-    private final double initServoPos =
-            0.3;
+    private final double initServoPos = 0.3;
 
     private final double POWER_STEP = 50;
     private final long ADJUST_DELAY_MS = 120;
@@ -112,6 +114,8 @@ public class MainBiobuzz extends LinearOpMode {
         rightTransfer = hardwareMap.get(DcMotorEx.class, "rightTransfer");
         rightTransfer.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        scooper = hardwareMap.get(ServoImplEx.class, "scooper");
+
 
 
 
@@ -120,6 +124,7 @@ public class MainBiobuzz extends LinearOpMode {
         // Default starting positions
         servoLeft.setPosition(initServoPos);
         servoRight.setPosition(initServoPos);
+        scooper.setPosition(0.17);
 
         // Separate processors to track each color range
         /*redLocator = new ColorBlobLocatorProcessor.Builder()
@@ -221,6 +226,7 @@ public class MainBiobuzz extends LinearOpMode {
     private void launch() {
         double p = launcherOn ? launchPower : 0;
         flywheel.setVelocity(p);
+        scooper.setPosition(0.75);
     }
 
     private void handleIntakeMotorsToggle() {
@@ -299,6 +305,7 @@ public class MainBiobuzz extends LinearOpMode {
         telemetry.addData("Transfer Power:",leftTransfer.getPower());
         telemetry.addData("Servo Left Position:", servoLeft.getPosition());
         telemetry.addData("Servo Right Position:", servoRight.getPosition());
+        telemetry.addData("Scooper Position: ", scooper.getPosition());
         telemetry.addLine("||||||||");
 
         telemetry.update();

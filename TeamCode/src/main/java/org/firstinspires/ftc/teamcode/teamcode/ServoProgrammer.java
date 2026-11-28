@@ -13,7 +13,7 @@ public class ServoProgrammer extends LinearOpMode {
 
     private double minPosition = 0.0;
     private double maxPosition = 1.0;
-    private double currentPosition = 0;
+    private double currentPosition = 0.5;
 
     private boolean dpadUpPressedLast = false;
     private boolean dpadDownPressedLast = false;
@@ -21,11 +21,11 @@ public class ServoProgrammer extends LinearOpMode {
     @Override
     public void runOpMode() {
         // Initialize servos
-        servoLeft = hardwareMap.get(Servo.class, "servoLeft");
-        servoRight = hardwareMap.get(Servo.class, "servoRight");
+        servoLeft = hardwareMap.get(Servo.class, "scooper");
+       // servoRight = hardwareMap.get(Servo.class, "servoRight");
 
         // Reverse right servo so they move in unison
-        servoRight.setDirection(Servo.Direction.REVERSE);
+        //servoRight.setDirection(Servo.Direction.REVERSE);
         //servoLeft.setDirection(Servo.Direction.REVERSE);
 
         // Move to default center position
@@ -57,7 +57,7 @@ public class ServoProgrammer extends LinearOpMode {
             // Telemetry
             telemetry.addData("Current Position", "%.3f", currentPosition);
             telemetry.addData("Current Position Left:",  servoLeft.getPosition());
-            telemetry.addData("Current Position Right",  servoRight.getPosition());
+            telemetry.addData("Current Position Right",  servoLeft.getPosition());
             telemetry.addLine("Controls:");
             telemetry.addLine("  D-Pad Up/Down: ±0.01");
             telemetry.addLine("  X: 0.20 | Y: 0.50 | B: 0.80");
@@ -68,7 +68,7 @@ public class ServoProgrammer extends LinearOpMode {
     public void setPosition(double targetPosition) {
         currentPosition = Range.clip(targetPosition, minPosition, maxPosition);
         servoLeft.setPosition(currentPosition);
-        servoRight.setPosition(currentPosition);
+        //servoRight.setPosition(currentPosition);
     }
 
     public void adjustPosition(double delta) {
